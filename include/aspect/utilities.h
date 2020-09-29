@@ -401,6 +401,13 @@ namespace aspect
      */
     bool filename_is_url(const std::string &filename);
 
+#ifdef ASPECT_WITH_LIBDAP
+    /**
+     *
+     */
+    void libdap_url_reader(const std::string &filename);
+#endif // ASPECT_WITH_LIBDAP
+
     /**
      * Reads the content of the ascii file @p filename on process 0 and
      * distributes the content by MPI_Bcast to all processes. The function

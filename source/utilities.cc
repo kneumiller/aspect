@@ -954,6 +954,76 @@ namespace aspect
         return false;
     }
 
+#ifdef ASPECT_WITH_LIBDAP
+    void
+    libdap_url_loader(const std::string &filename)
+    {
+        libdap::Connect *url = new libdap::Connect(filename);
+        libdap::BaseTypeFactory factory;
+        libdap::DataDDS dds(&factory);
+        libdap::DAS das;
+
+        url->request_data(dds, "");
+        url->request_das(das);
+
+
+        // Temporary vector that will hold the different arrays stored in urlArray
+        std::vector<std::string> tmp;
+        // Vector that will hold the arrays (columns) and the values within those arrays
+        //TODO: needs to be changed from string to double for the reinit. Need to add conversion
+        std::vector<std::vector<std::string>> columns;
+
+        std::vector<std::string> column_names;
+
+        // Check dds values to make sure the arrays are of the same length and of type string
+        for (libdap::DDS::Vars_iter i = dds.var_begin(); i != dds.var_end(); ++i)
+        {
+            column_names.push_back(*i);
+            libdap::BaseType *btp = *i;
+            if ((*i)->type() == libdap::dods_array_c)
+            {
+                // Array to store the url data
+                libdap::Array *urlArray;
+                urlArray = static_cast <libdap::Array *>(btp);
+                if (urlArray->var() != nullptr && urlArray->var()->type() == libdap::dods_str_c)
+                {
+                    // The url Array contains a separate array for each column of data.
+                    // This will put each of these individual arrays into its own vector.
+                    urlArray->value(tmp);
+                    columns.push_back(tmp);
+                }
+                else
+                {
+                    AssertThrow (false,
+                                 ExcMessage (std::string("Error when reading from url: ") + filename +
+                                             " Check your connection to the server and make sure the server "
+                                             "delivers correct data."));
+                }
+
+            }
+            else
+            {
+                AssertThrow (false,
+                             ExcMessage (std::string("Error when reading from url: ") + filename +
+                                         " Check your connection to the server and make sure the server "
+                                         "delivers correct data."));
+            }
+        }
+
+        //TODO: Call reinit
+          AsciiDataLookup<2> lookup(columns.size(), 1);
+
+          std::vector<Table<2, double>> raw_data(1, Table<2, double>(tmp.size(), tmp.size()));
+
+          cout << "columns size: " << columns.size() << endl;
+
+          //TODO:
+          //    1.) argument 1: Need to get names of variables from the url request
+          //    2.) argument 2: Need to make 'columns' from string to double
+          //    3.) argument 3: Need to make a table that stores the data values
+          lookup.reinit(column_names, columns, raw_data);
+    }
+#endif // ASPECT_WITH_LIBDAP
 
     std::string
     read_and_distribute_file_content(const std::string &filename,
@@ -965,116 +1035,7 @@ namespace aspect
         {
           // set file size to an invalid size (signaling an error if we can not read it)
           unsigned int filesize = numbers::invalid_unsigned_int;
-
-          // Check to see if the prm file will be reading data from disk or
-          // from a provided URL
-          if (filename_is_url(filename))
-            {
-#ifdef ASPECT_WITH_LIBDAP
-              libdap::Connect *url = new libdap::Connect(filename);
-              libdap::BaseTypeFactory factory;
-              libdap::DataDDS dds(&factory);
-              libdap::DAS das;
-
-              url->request_data(dds, "");
-              url->request_das(das);
-
-
-              // Temporary vector that will hold the different arrays stored in urlArray
-              std::vector<std::string> tmp;
-              // Vector that will hold the arrays (columns) and the values within those arrays
-              std::vector<std::vector<std::string>> columns;
-
-              // Check dds values to make sure the arrays are of the same length and of type string
-              for (libdap::DDS::Vars_iter i = dds.var_begin(); i != dds.var_end(); ++i)
-                {
-                  libdap::BaseType *btp = *i;
-                  if ((*i)->type() == libdap::dods_array_c)
-                    {
-                      // Array to store the url data
-                      libdap::Array *urlArray;
-                      urlArray = static_cast <libdap::Array *>(btp);
-                      if (urlArray->var() != nullptr && urlArray->var()->type() == libdap::dods_str_c)
-                        {
-                          // The url Array contains a separate array for each column of data.
-                          // This will put each of these individual arrays into its own vector.
-                          urlArray->value(tmp);
-                          columns.push_back(tmp);
-                        }
-                      else
-                        {
-                          AssertThrow (false,
-                                       ExcMessage (std::string("Error when reading from url: ") + filename +
-                                                   " Check your connection to the server and make sure the server "
-                                                   "delivers correct data."));
-                        }
-
-                    }
-                  else
-                    {
-                      AssertThrow (false,
-                                   ExcMessage (std::string("Error when reading from url: ") + filename +
-                                               " Check your connection to the server and make sure the server "
-                                               "delivers correct data."));
-                    }
-                }
-
-              // Add the POINTS data that is required and found at the top of the data file.
-              // The POINTS values are set as attributes inside a table.
-              // Loop through the Attribute table to locate the points values within
-              std::vector<std::string> points;
-              for (libdap::AttrTable::Attr_iter i = das.var_begin(); i != das.var_end(); i++)
-                {
-                  libdap::AttrTable *table;
-
-                  table = das.get_table(i);
-                  if (table->get_attr("points") != "")
-                    points.push_back(table->get_attr("points"));
-                }
-
-              std::stringstream urlString;
-
-              // Append the gathered POINTS in the proper format:
-              // "# POINTS: <val1> <val2> <val3>"
-              urlString << "# POINTS:";
-              for (unsigned int i = 0; i < points.size(); i++)
-                {
-                  urlString << " " << points[i];
-                }
-              urlString << "\n";
-
-              // Add the values from the arrays into the stringstream. The values are passed in
-              // per row with a character return added at the end of each row.
-              // TODO: Add a check to make sure that each column is the same size before writing
-              //     to the stringstream
-              for (unsigned int i = 0; i < tmp.size(); i++)
-                {
-                  for (unsigned int j = 0; j < columns.size(); j++)
-                    {
-                      urlString << columns[j][i];
-                      urlString << " ";
-                    }
-                  urlString << "\n";
-                }
-
-              data_string = urlString.str();
-              filesize = data_string.size();
-
-              delete url;
-#else // ASPECT_WITH_LIBDAP
-
-              // broadcast failure state, then throw
-              const int ierr = MPI_Bcast(&filesize, 1, MPI_UNSIGNED, 0, comm);
-              AssertThrowMPI(ierr);
-              AssertThrow(false,
-                          ExcMessage(std::string("Reading of file ") + filename + " failed. " +
-                                     "Make sure you have the dependencies for reading a url " +
-                                     "(run cmake with -DASPECT_WITH_LIBDAP=ON)"));
-
-#endif // ASPECT_WITH_LIBDAP
-            }
-          else
-            {
+          
               std::ifstream filestream(filename.c_str());
 
               if (!filestream)
@@ -1106,7 +1067,7 @@ namespace aspect
 
               data_string = datastream.str();
               filesize = data_string.size();
-            }
+            //}
 
           // Distribute data_size and data across processes
           int ierr = MPI_Bcast(&filesize,1,MPI_UNSIGNED,0,comm);
@@ -1825,6 +1786,15 @@ namespace aspect
       // check if somebody changes the size of the table over time and error out (see below)
       TableIndices<dim> new_table_points = this->table_points;
       std::vector<std::string> column_names;
+
+      // Check if the filename being read in is from a url and is gridded data.
+      // If so, take the gridded data and run reinit on it before passing the data
+      cout << "test load_file" << endl;
+      if (filename_is_url(filename)) {
+          //Call url reader function
+          libdap_url_loader(filename);
+      }
+
 
       // Read data from disk and distribute among processes
       std::stringstream in(read_and_distribute_file_content(filename, comm));
