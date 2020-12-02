@@ -26,6 +26,7 @@
 #include <Connect.h>
 #include <Response.h>
 #include <Array.h>
+#include <Grid.h>
 #endif
 
 #include <array>
@@ -966,62 +967,103 @@ namespace aspect
         url->request_data(dds, "");
         url->request_das(das);
 
-
-        // Temporary vector that will hold the different arrays stored in urlArray
-        std::vector<std::string> tmp;
-        // Vector that will hold the arrays (columns) and the values within those arrays
-        //TODO: needs to be changed from string to double for the reinit. Need to add conversion
-        std::vector<std::vector<std::string>> columns;
-
+        //TODO: for future use in reinit
         std::vector<std::string> column_names;
 
-        // Check dds values to make sure the arrays are of the same length and of type string
-        for (libdap::DDS::Vars_iter i = dds.var_begin(); i != dds.var_end(); ++i)
+        libdap::Array *gridArray;
+        libdap::Array *lonArray;
+        libdap::Array *latArray;
+
+        // Check dds values to make sure the arrays are of the same length and of type float
+        for (auto i = dds.var_begin(), e = dds.var_end(); i != e;  ++i)
         {
-            column_names.push_back(*i);
-            libdap::BaseType *btp = *i;
-            if ((*i)->type() == libdap::dods_array_c)
+            if ((*i)->type() == libdap::dods_grid_c)
             {
-                // Array to store the url data
-                libdap::Array *urlArray;
-                urlArray = static_cast <libdap::Array *>(btp);
-                if (urlArray->var() != nullptr && urlArray->var()->type() == libdap::dods_str_c)
-                {
-                    // The url Array contains a separate array for each column of data.
-                    // This will put each of these individual arrays into its own vector.
-                    urlArray->value(tmp);
-                    columns.push_back(tmp);
-                }
-                else
-                {
+                //Gridded data from url
+                libdap::Grid *urlGrid = dynamic_cast<libdap::Grid*>(*i);
+
+                if (urlGrid == nullptr)
                     AssertThrow (false,
-                                 ExcMessage (std::string("Error when reading from url: ") + filename +
-                                             " Check your connection to the server and make sure the server "
-                                             "delivers correct data."));
+                                 ExcMessage (std::string("Error: expected a Grid")));
+
+                gridArray = urlGrid->get_array();
+
+                for(auto i = urlGrid->map_begin(), e = urlGrid->map_end(); i != e; i++)
+                {
+                    if ((*i)->name() == "longitude")
+                    {
+                        lonArray = dynamic_cast<libdap::Array*>(*i);
+                        if (lonArray == nullptr)
+                            AssertThrow(false,
+                                        ExcMessage (std::string("Error: expected array")));
+                    }
+                    else if ((*i)->name() == "colatitude")
+                    {
+                        latArray = dynamic_cast<libdap::Array*>(*i);
+                        if (latArray == nullptr)
+                        AssertThrow(false,
+                                    ExcMessage (std::string("Error: expected array")));
+                    }
                 }
 
-            }
-            else
-            {
-                AssertThrow (false,
-                             ExcMessage (std::string("Error when reading from url: ") + filename +
-                                         " Check your connection to the server and make sure the server "
-                                         "delivers correct data."));
+                auto lonData = vector<libdap::dods_float32>(lonArray->length());
+                lonArray->value(&lonData[0]);
+                auto latData = vector<libdap::dods_float32>(latArray->length());
+                latArray->value(&latData[0]);
+
+                //Store the names for AsciiDataLookup (should probably be in this order)
+                column_names.push_back(latArray->name());
+                column_names.push_back(lonArray->name());
             }
         }
 
+        //TODO: Convert libdap::float32 values to double
+        //double* convert_data = extract_double_array(gridArray);
+
         //TODO: Call reinit
-          AsciiDataLookup<2> lookup(columns.size(), 1);
+          AsciiDataLookup<2> lookup(1.0);
+          if (gridArray->dimensions() != 2)
+              AssertThrow(false,
+                          ExcMessage (std::string("Error: detected dimmensions was not equal to 2")));
 
-          std::vector<Table<2, double>> raw_data(1, Table<2, double>(tmp.size(), tmp.size()));
+          size_t x_size = gridArray->dimension_size(gridArray->dim_begin());
+          size_t y_size = gridArray->dimension_size(++(gridArray->dim_begin()));
+          vector<Table<2, double>> grid_data(2, Table<2, double>(x_size, y_size));
+          //vector<Table<1, double>> grid_data(y_size, Table<1, double>(y_size));
 
-          cout << "columns size: " << columns.size() << endl;
+          gridArray->set_read_p(true);
+          lonArray->set_read_p(true);
+          latArray->set_read_p(true);
+
+          //Convert the float values in the grid to doubles
+          auto double_grid = vector<double>(gridArray->length());
+          extract_double_array(gridArray, double_grid);
+
+          //grid_data[0](0,0) = 0.0;
+          for (size_t i = 0; i < x_size; i++) {
+              auto offset = i*y_size;
+              for (size_t j = 0; j < y_size; j++) {
+                //TODO: change at to []
+                grid_data[0](i, j) = double_grid.at(offset+j);
+                //grid_data[i](j) = double_grid[offset+j];
+              }
+          }
+
+          vector<vector<double>> column_data;
+          auto double_lon = vector<double>(lonArray->length());
+          extract_double_array(lonArray, double_lon);
+          auto double_lat = vector<double>(latArray->length());
+          extract_double_array(latArray, double_lat);
+
+          column_data.push_back(double_lon);
+          column_data.push_back(double_lat);
 
           //TODO:
           //    1.) argument 1: Need to get names of variables from the url request
           //    2.) argument 2: Need to make 'columns' from string to double
           //    3.) argument 3: Need to make a table that stores the data values
-          lookup.reinit(column_names, columns, raw_data);
+          //lookup.reinit(vector <string>, vector<vector<double>>, vector<Table<2, double>>)
+          lookup.reinit(column_names, column_data, grid_data);
     }
 #endif // ASPECT_WITH_LIBDAP
 
@@ -1030,12 +1072,11 @@ namespace aspect
                                      const MPI_Comm &comm)
     {
       std::string data_string;
-
       if (Utilities::MPI::this_mpi_process(comm) == 0)
         {
           // set file size to an invalid size (signaling an error if we can not read it)
           unsigned int filesize = numbers::invalid_unsigned_int;
-          
+
               std::ifstream filestream(filename.c_str());
 
               if (!filestream)
@@ -1742,7 +1783,6 @@ namespace aspect
           for (unsigned int n = 1; n < table_points[d]; ++n)
             {
               const double current_grid_spacing = coordinate_values[d][n] - coordinate_values_[d][n-1];
-
               AssertThrow(current_grid_spacing > 0.0,
                           ExcMessage ("Coordinates in dimension "
                                       + Utilities::int_to_string(d)
@@ -1789,12 +1829,11 @@ namespace aspect
 
       // Check if the filename being read in is from a url and is gridded data.
       // If so, take the gridded data and run reinit on it before passing the data
-      cout << "test load_file" << endl;
       if (filename_is_url(filename)) {
           //Call url reader function
           libdap_url_loader(filename);
+          return;
       }
-
 
       // Read data from disk and distribute among processes
       std::stringstream in(read_and_distribute_file_content(filename, comm));
