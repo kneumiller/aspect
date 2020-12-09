@@ -405,7 +405,7 @@ namespace aspect
     /**
      *
      */
-    void libdap_url_reader(const std::string &filename);
+    void libdap_url_loader(const std::string &filename);
 #endif // ASPECT_WITH_LIBDAP
 
     /**
