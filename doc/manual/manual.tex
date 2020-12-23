@@ -95,6 +95,7 @@
 
 \definecolor{dark_grey}{gray}{0.3}
 \definecolor{aspect_blue}{rgb}{0.3125,0.6875,0.9375}
+\definecolor{aspect_red}{rgb}{0.522,0.0,0.0}
 
 %LINE 1%
 {
@@ -124,7 +125,7 @@ COMPUTATIONAL INFRASTRUCTURE FOR GEODYNAMICS (CIG)
 \resizebox{\textwidth}{!}{\colorbox
 % FILL: color of code name text box
 % e.g. blue
-{aspect_blue}{\fontfamily{\rmdefault}\selectfont \textcolor{white} {
+{aspect_red}{\fontfamily{\rmdefault}\selectfont \textcolor{white} {
 % FILL: name of the code
 % You may want to add \hspace to both sides of the codename to better center it, such as:
 % \newcommand{\codename}{\hspace{0.1in}CodeName\hspace{0.1in}}
@@ -134,33 +135,49 @@ COMPUTATIONAL INFRASTRUCTURE FOR GEODYNAMICS (CIG)
 {\Large Advanced Solver for Problems in Earth's ConvecTion}
 \end{center}
 
-%MAIN PICTURE%
-\begin{textblock*}{0in}(1.5in,0.3in)
-% FILL: image height
-% e.g. height=6.5in
-\begin{center}
-\vspace{1em}
-\includegraphics[height=3.5in]
-% FILL: image file name
-% e.g. cover_image.png
-{mesh-2d.png}
-\hspace{5em}
-\end{center}
-\end{textblock*}
+{
+  \parindent 0pt
+  % Place the Logo into a box of width 0 and position it at the given
+  % (x,y) within this box.
+  \begin{textblock*}{0in}(0.0in,0.8in)
+    \begin{center}
+      \vspace{1em}
+      \includegraphics[width=4.5in]{../logo/unlabeled_logo.pdf}
+      \hspace{5em}
+    \end{center}
+  \end{textblock*}
 
-%USER MANUAL%
-\color{dark_grey}
-\hfill{\Huge \fontfamily{\sfdefault}\selectfont User Manual \\
-\raggedleft \huge \fontfamily{\sfdefault}\selectfont Version
-% keep the following line as is so that we can replace this using a script:
-2.3.0-pre %VERSION-INFO%
-\\\large(generated \today)\\
-{\Large Wolfgang Bangerth\\Juliane Dannberg\\Rene Gassm{\"o}ller\\Timo Heister\\}
+  % Then overlay some text into another textblock* environment that is
+  % as wide as the page. We use \raggedright, so everything is shown
+  % on the right side of the page. The y-coordinate of the anchor
+  % (0.3in) is the same as for the picture, aligning the text nicely
+  % to the image.
+  \begin{textblock*}{\textwidth}(0in,0.3in)
+    \vspace{1em}
+    \color{dark_grey}
+    \hfill{\Huge \fontfamily{\sfdefault}\selectfont User Manual \\
+      \raggedleft \huge \fontfamily{\sfdefault}\selectfont Version
+      % keep the following line as is so that we can replace this using a script:
+      2.3.0-pre %VERSION-INFO%
+      \\
+      \large(generated \today)
+      \\[16pt]
+        {\Large
+          Wolfgang Bangerth \\
+          Juliane Dannberg \\
+          Menno Fraters \\
+          Rene Gassm{\"o}ller \\
+          Anne Glerum \\
+          Timo Heister \\
+          John Naliboff\\}
+    }
+  \end{textblock*}
 }
+
 
 %AUTHOR(S) & WEBSITE%
 \null
-\vspace{17em}
+\vfill
 \color{dark_grey}
 {\fontfamily{\sfdefault}\selectfont
 % FILL: author list
@@ -174,9 +191,7 @@ COMPUTATIONAL INFRASTRUCTURE FOR GEODYNAMICS (CIG)
     Samuel Cox,
     William Durkin,
     Grant Euen,
-    Menno Fraters,
     Thomas Geenen,
-    Anne Glerum,
     Ryan Grove,
     Eric Heien,
     Louise Kellogg,
@@ -187,7 +202,6 @@ COMPUTATIONAL INFRASTRUCTURE FOR GEODYNAMICS (CIG)
     Hannah Mark,
     Elvira Mulyukova,
     Bob Myhill,
-    John Naliboff,
     Bart Niday,
     Jonathan Perry-Houts,
     Elbridge Gerry Puckett,
@@ -198,7 +212,7 @@ COMPUTATIONAL INFRASTRUCTURE FOR GEODYNAMICS (CIG)
     Wanying Wang,
     Iris van Zelst,
     Siqi Zhang \\
-\vspace{1.0em}
+\vspace{0.5em}
 }
 
 {\noindent
@@ -797,16 +811,15 @@ c,\mathbf x)$:} Units $\si{Pa . s} =
   implemented.
 
 \item \textit{The specific isobaric heat capacity $C_p=C_p(p,T,\mathfrak c,\mathbf x)$:}
-Units $\frac{\textrm{J}}{\si{kg}\cdot\si{K}} =
-  \frac{\si{m}^2}{\textrm{s}^2\cdot\si{K}}$.
+Units \si{J/kg/K} = \si{m^2/s^2/K}.
 
   The specific heat capacity denotes the amount of energy needed to increase
   the temperature of one kilogram of material by one Kelvin at constant pressure.
   Wikipedia lists a value of
-  790 $\frac{\textrm{J}}{\si{kg}\cdot\si{K}}$ for granite%
+  $790 \si{J/kg/K}$ for granite%
   \footnote{See \url{http://en.wikipedia.org/wiki/Specific_heat}.}
-  For the earth mantle, a value of 1250
-  $\frac{\textrm{J}}{\si{kg}\cdot\si{K}}$ is within the range
+  For the Earth's mantle, a value of $1250
+  \si{J/kg/K}$ is within the range
   suggested by the literature.
 
 
@@ -917,8 +930,8 @@ Units $\frac{\textrm{J}}{\si{kg}\cdot\si{K}} =
 \item \textit{The change in entropy $\Delta S$ at a
   phase transition together with the derivatives of the phase function
   $X=X(p,T,\mathfrak c,\mathbf x)$ with regard to temperature and pressure:} Units
-  $\frac{\textrm{J}}{\si{kg}\si{K}^2}$ ($-\Delta S \frac{\partial X}{\partial T}$) and
-  $\frac{\si{m}^3}{\si{kg}\si{K}}$ ($\Delta S \frac{\partial X}{\partial p}$).
+  \si{J/kg/K^2} ($-\Delta S \frac{\partial X}{\partial T}$) and
+  \si{m^3/kg/K} ($\Delta S \frac{\partial X}{\partial p}$).
 
   When material undergoes a phase transition, the entropy changes due to
   release or consumption of latent heat. However, phase transitions occur
@@ -1661,7 +1674,38 @@ considering velocity, pressure and temperature, we will in the following omit
 the dependence on the compositional fields used in previous sections, though
 this dependence can easily be added back into the equations stated below. A
 detailed discussion of the approximations introduced below can also be found in \cite{STO01} and
-\cite{KLKLZTTK10}.
+\cite{KLKLZTTK10}; a theoretical and practical comparison of many of
+these formulations using \aspect{} can be found in
+\cite{gassmoller2020formulations}.
+
+\note{Historically, the mantle convection community has typically used
+  one or another of these simplified formulations for computer simulations
+  -- oftentimes the simplest of them, the Boussinesq Approximation
+  (BA) discussed in Section~\ref{sec:Boussinesq}. These kinds of
+  approximations are appropriate in many contexts; for example,
+  for crustal dynamics simulations, the hydrostatic pressures are
+  never high enough to lead to noticeable compression effects and as a
+  consequence the density really is more or less independent of the
+  pressure -- as assumed in several of the approximations below. Yet,
+  it is worth pointing out that many older publications showing
+  mantle convection simulations did not
+  rely on these approximations because they describe the physical
+  situation better than equations
+  \eqref{eq:stokes-1}--\eqref{eq:temperature}, but \textit{because
+    simulation technology did not allow for anything else at the
+    time}.
+
+  This has changed today, and \aspect{} implements more realistic
+  formulations as discussed in this section and in
+  Section~\ref{sec:choosing-a-formulation}. As a consequence, you
+  should evaluate which formulation is
+  appropriate for what you want to do. The fact that someone else in
+  the past used a simplified formulation does not mean that you should do
+  the same for a similar situation: it could just indicate that they
+  did not have the technology to use a more complete formulation at the
+  time.
+  }
+
 
 The three approximations mentioned all start by writing the pressure and
 temperature as the sum of a (possibly depth dependent)
@@ -2060,12 +2104,22 @@ from previous time steps), or using a nonlinear solver scheme.
   ``isothermal compression'' for historical reasons, but the compressibility can be
   either isentropic or isothermal.}
 
+
+
 \subsection{Choosing a formulation in \aspect{}}
+\label{sec:choosing-a-formulation}
 
 After discussing different reasonable approximations for modeling compressible or
 incompressible mantle convection, we will now describe the different steps one has
-to take to use one of these approximations in a computation.
-This includes
+to take to use one of these approximations in a computation. As noted
+towards the beginning of Section~\ref{sec:approximate-equations}, one
+should choose a formulation that is adequate for the situation one
+wants to simulate, taking into account that other authors in previous
+studies may have used formulations not because they were suited to the
+situation but also because, possibly, they did not have software
+available that implemented the most suitable formulation.
+
+The choices involved in selecting a formulation include:
 \begin{enumerate}
 \item Choosing an approximation for the mass conservation equation;
 \item Choosing an approximation for the density in the energy balance, and deciding which heating terms should be included;
@@ -2750,7 +2804,7 @@ guide users to an informed decision about the best option for their purpose.
     Modifying ASPECT        & Possible & Possible & Possible \\
     Configuring dependencies & Possible & No   & No \\ \hline
   \end{tabular}
-  \caption{Features of the different installation options of \aspect{}.}
+  \caption{\it Features of the different installation options of \aspect{}.}
   \label{tab:install-options}
 \end{table}
 
@@ -4420,7 +4474,7 @@ plugin that allows you to describe this formula in a symbolic way in the input f
 case is this snippet of code discussed in
 Section~\ref{sec:cookbooks-simple-box-3d}:
 %
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/initial.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/initial.part.prm.out}
 %
 The formulas you can enter here need to use a syntax that is understood by the
 functions and classes that interpret what you write. Internally, this is done
@@ -4691,7 +4745,7 @@ interesting once one goes to 3d. The setup from the previous section is easily
 adjusted to this and in the following, let us walk through some of the changes
 we have to consider when going from 2d to 3d. The full input file that
 contains these modifications and that was used for the simulations we will show
-subsequently can be found at \url{cookbooks/convection-box-3d.prm}.
+subsequently can be found at \url{cookbooks/convection\_box\_3d.prm}.
 
 The first set of changes has to do with the geometry: it is three-dimensional,
 and we will have to address the fact that a box in 3d has 6 sides, not the 4 we
@@ -4701,41 +4755,41 @@ numbered as follows: ``\textit{in 3d, boundary indicators 0 through 5 indicate
 left, right, front, back, bottom and top boundaries}.'' Recalling that we want
 tangential flow all around and want to fix the temperature to known values at
 the bottom and top, the following will make sense:
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/start.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/start.part.prm.out}
 
 
 The next step is to describe the initial conditions. As before, we will use an
 unstably layered medium but the perturbation now needs to be both in $x$- and
 $y$-direction
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/initial.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/initial.part.prm.out}
 
 The third issue we need to address is that we can likely not afford a mesh as
 fine as in 2d. We choose a mesh that is refined 3 times globally at the
 beginning, then 3 times adaptively, and is then adapted every 15 time steps. We
 also allow one additional mesh refinement in the first time step following
 $t=0.003$ once the initial instability has given way to a more stable pattern:
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/amr.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/amr.part.prm.out}
 
 Finally, as we have seen in the previous section, a computation with $Ra=10^4$
 does not lead to a simulation that is exactly exciting. Let us choose $Ra=10^6$
 instead (the mesh chosen above with up to 7 refinement levels after some time
 is fine enough to resolve this). We can achieve this in the same way as in the
 previous section by choosing $\alpha=10^{-10}$ and setting
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/gravity.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/gravity.part.prm.out}
 This has some interesting implications. First, a higher Rayleigh number makes
 time scales correspondingly smaller; where we generated graphical output only
 once every 0.01 time units before, we now need to choose the corresponding
 increment smaller by a factor of 100:
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/postprocess.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/postprocess.part.prm.out}
 Secondly, a simulation like this -- in 3d, with a significant number of cells,
 and for a significant number of time steps -- will likely take a good amount of
 time. The computations for which we show results below was run using 64
 processors by running it using the command
-{\tt{mpirun -n 64 ./aspect convection-box-3d.prm}}. If the machine should crash
+{\tt{mpirun -n 64 ./aspect convection\_box\_3d.prm}}. If the machine should crash
 during such a run, a significant amount of compute time would be lost if we had
 to run everything from the start. However, we can avoid this by periodically
 checkpointing the state of the computation:
-\lstinputlisting[language=prmfile]{cookbooks/convection-box-3d/doc/checkpoint.part.prm.out}
+\lstinputlisting[language=prmfile]{cookbooks/convection_box_3d/doc/checkpoint.part.prm.out}
 If the computation does crash (or if a computation runs out of the time limit
 imposed by a scheduling system), then it can be restarted from such
 checkpointing files (see the parameter {\tt Resume computation}
@@ -4807,17 +4861,17 @@ the simulation is also clearly non-stationary.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0010.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0010.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0040.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0040.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0060.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0060.png}
   \\
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0100.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0100.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0130.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0130.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/movie0180.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/movie0180.png}
   \caption{\it Convection in a 3d box: Temperature isocontours and some
   velocity vectors at the first time step after times $t=0.001, 0.004, 0.006$
   (top row, left to right) an $t=0.01, 0.013, 0.018$ (bottom row).}
@@ -4827,11 +4881,11 @@ the simulation is also clearly non-stationary.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/mesh0060.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/mesh0060.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/mesh0100.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/mesh0100.png}
   \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/convection-box-3d/doc/mesh0180.png}
+  \includegraphics[width=0.3\textwidth]{cookbooks/convection_box_3d/doc/mesh0180.png}
   \caption{\it Convection in a 3d box: Meshes and large-scale velocity field
   for the third, fourth and sixth of the snapshots shown in
   Fig.~\ref{fig:box-3d-solution}.}
@@ -4866,7 +4920,7 @@ postprocessors.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.6\textwidth]{cookbooks/convection-box-3d/doc/heat-flux.png}
+  \includegraphics[width=0.6\textwidth]{cookbooks/convection_box_3d/doc/heat-flux.png}
   \caption{\it Convection in a 3d box: Upward heat flux through the bottom and
   top boundaries as a function of time.}
   \label{fig:box-3d-heat-flux}
@@ -5016,242 +5070,15 @@ field(s) at this location.
 \aspect{} implements both strategies, at least to a certain degree. In this
 cookbook, we will follow the route of advected fields.
 
-\paragraph{The passive case.}
-We will consider the
-exact same situation as in the previous section but we will ask where the
-material that started in the bottom 20\% of the domain
-ends up, as well as the material that started in the top 20\%. For the moment,
-let us assume that there is no material between the materials at the bottom, the
-top, and the middle. The way to describe this situation is to simply add the
-following block of definitions to the parameter file (you can find the full
-parameter file in \url{cookbooks/composition-passive.prm}:
 
-\lstinputlisting[language=prmfile]{cookbooks/composition-passive/doc/passive.part.prm.out}
+% cookbooks/composition_active/
 
-Running this simulation yields results such as the ones shown in
-Fig.~\ref{fig:compositional-passive} where we show the values of the functions
-$c_1(\mathbf x,t)$ and $c_2(\mathbf x,t)$ at various times in the simulation.
-Because these fields were one only inside the lowermost and uppermost parts of
-the domain, zero everywhere else, and because they have simply been advected
-along with the flow field, the places where they are larger than one half
-indicate where material has been transported to so far.%
-\footnote{Of course, this interpretation suggests that we could have achieved
-the same goal by encoding everything into a single function -- that would, for
-example, have had initial values one, zero and minus one in the three parts of
-the domain we are interested in.}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0007.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0008.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0009.png}
-  \\
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0010.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0012.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-passive/doc/visit0014.png}
-  \caption{\it Passive compositional fields: The figures show, at
-    different times in the simulation, the velocity field along with
-    those locations where the first compositional field is larger than
-    0.5 (in red, indicating the locations where material from the bottom
-    of the domain has gone) as well as where the second compositional
-    field is larger than 0.5 (in blue, indicating material from the top
-    of the domain. The results were obtained with two more global
-    refinement steps compared to the
-    \url{cookbooks/composition-passive.prm} input file.}
-  \label{fig:compositional-passive}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[height=0.3\textwidth]{cookbooks/composition-passive/doc/visit0015.png}
-  \hfill
-  \includegraphics[height=0.3\textwidth]{cookbooks/composition-passive/doc/visit0017.png}
-  \caption{\it Passive compositional fields: A later image of the simulation
-    corresponding to the sequence shown in
-    Fig.~\ref{fig:compositional-passive} (left) and zoom-in on the
-    center, also showing the mesh (right).}
-  \label{fig:compositional-passive-zoom}
-\end{figure}
+\input{cookbooks/composition_passive/doc/composition_passive.tex}
 
 
-Fig.~\ref{fig:compositional-passive} shows one aspect of compositional
-fields that occasionally makes them difficult to use for very long
-time computations. The simulation shown here runs for 20 time units,
-where every cycle of the spreading center at the top moving left and
-right takes 4 time units, for a total of 5 such cycles. While this is
-certainly no short-term simulation, it is obviously visible in the
-figure that the interface between the materials has diffused over
-time. Fig.~\ref{fig:compositional-passive-zoom} shows a zoom into the
-center of the domain at the final time of the simulation. The
-figure only shows values that are larger than 0.5, and it looks like
-the transition from red or blue to the edge of the shown region is no
-wider than 3 cells. This means that the computation is not overly
-diffusive but it is nevertheless true that this method has difficulty
-following long and thin filaments.%
-\footnote{We note that this is no different for particles where the
-  position of particles has to be integrated over time and is subject to
-  numerical error. In simulations, their location is therefore not the
-  exact one but also subject to a diffusive process resulting from
-  numerical inaccuracies. Furthermore, in long thin filaments, the
-  number of particles per cell often becomes too small and new particles
-  have to be inserted; their properties are then interpolated from the
-  surrounding particles, a process that also incurs a smoothing penalty.}
-This is an area in which \aspect{} may see improvements in the future.
+% cookbooks/composition_active/
 
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{cookbooks/composition-passive/doc/mass-composition-1.png}
-  \caption{\it Passive compositional fields: Minimum and maximum of the first
-  compositional variable over time, as well as the mass $m_1(t)=\int_\Omega c_1(\mathbf x,t)$ stored in this variable.}
-  \label{fig:compositional-passive-mass}
-\end{figure}
-
-A different way of looking at the quality of compositional fields as opposed to
-particles is to ask whether they conserve mass. In the current context, the
-mass contained in the $i$th compositional field is $m_i(t)=\int_\Omega c_i(\mathbf x,t)$.
-This can easily be achieve in the following way, by adding the \texttt{composition statistics}
-postprocessor:
-
-\lstinputlisting[language=prmfile]{cookbooks/composition-passive/doc/postprocess.part.prm.out}
-
-While the scheme we use to advect the compositional fields is not strictly
-conservative, it is almost perfectly so in practice. For example, in
-the computations shown in this section (using two additional global mesh
-refinements over the settings in the parameter file
-\url{cookbooks/composition-passive.prm}), Fig.~\ref{fig:compositional-passive-mass}
-shows the maximal and minimal values of the first compositional fields over time,
-along with the mass $m_1(t)$ (these are all tabulated in columns of the
-statistics file, see Sections~\ref{sec:running-overview} and \ref{sec:viz-stat}). While
-the maximum and minimum fluctuate slightly due to the instability of the finite element
-method in resolving discontinuous functions,
-the mass appears stable at a value of 0.403646 (the exact value, namely the
-area that was initially filled by each material, is 0.4; the difference is a
-result of the fact that we can't exactly represent the step function on our
-mesh with the finite element space). In fact, the maximal difference in this
-value between time steps 1 and 500 is only $\num{1.1e-6}$. In other words,
-these numbers show that the compositional field approach is almost exactly mass conservative.
-
-
-\paragraph{The active case.} The next step, of course, is to make the flow
-actually depend on the composition. After all, compositional fields are not only
-intended to indicate where material come from, but also to indicate the
-properties of this material. In general, the way to achieve this is to write
-material models where the density, viscosity, and other parameters depend on the
-composition, taking into account what the compositional fields actually denote
-(e.g., if they simply indicate the origin of material, or the concentration of
-things like olivine, perovskite, \ldots). The construction of material models is
-discussed in much greater detail in Section~\ref{sec:material-models}; we do not
-want to revisit this issue here and instead choose -- once again -- the simplest
-material model that is implemented in \aspect{}: the \texttt{simple} model.
-
-The place where we are going to hook in a compositional dependence is the
-density. In the \texttt{simple} model, the density is fundamentally described by
-a material that expands linearly with the temperature; for small density
-variations, this corresponds to a density model of the form
-$\rho(T)=\rho_0(1-\alpha(T-T_0))$. This is, by virtue of its simplicity, the
-most often considered density model. But the \texttt{simple} model also has a
-hook to make the density depend on the first compositional field $c_1(\mathbf
-x,t)$, yielding a dependence of the form
-$\rho(T)=\rho_0(1-\alpha(T-T_0))+\gamma c_1$. Here, let us choose $\rho_0=1,
-\alpha=0.01, T_0=0, \gamma=100$. The rest of our model setup will be as
-in the passive case above. Because the temperature will be between zero and one,
-the temperature induced density variations will be restricted to 0.01, whereas
-the density variation by origin of the material is 100. This should make sure
-that dense material remains at the bottom despite the fact that it is hotter
-than the surrounding material.%
-\footnote{The actual values do not matter as much here. They are chosen in such
-a way that the system -- previously driven primarily by the velocity boundary
-conditions at the top -- now also feels the impact of the density variations.
-To have an effect, the buoyancy induced by the density difference between
-materials must be strong enough to balance or at least approach the forces
-exerted by whatever is driving the velocity at the top.}
-
-This setup of the problem can be described using an input file that is almost
-completely unchanged from the passive case. The only difference is the use of
-the following section (the complete input file can be found in
-\url{cookbooks/composition-active.prm}:
-
-
-\lstinputlisting[language=prmfile]{cookbooks/composition-active/doc/active.part.prm.out}
-
-To debug the model, we will also want to visualize the density in our
-graphical output files. This is done using the following addition to the
-postprocessing section, using the \texttt{density} visualization plugin:
-
-\lstinputlisting[language=prmfile]{cookbooks/composition-active/doc/postprocess.part.prm.out}
-
-\begin{figure}
-  \centering
-  \centering
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0007.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0009.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0008.png}
-  \caption{\it Active compositional fields: Compositional field 1 at the time
-    $t=0, 10, 20$. Compared to the results shown in
-    Fig.~\ref{fig:compositional-passive} it is clear that the heavy material
-    stays at the bottom of the domain now. The effect of the density on the
-    velocity field is also clearly visible by noting that at all three times
-    the spreading center at the top boundary is in exactly the same position;
-    this would result in exactly the same velocity field if the density and
-    temperature were constant.}
-  \label{fig:composition-active-composition}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0000.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0001.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0002.png}
-  \\[6pt]
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0003.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0004.png}
-  \hfill
-  \includegraphics[width=0.3\textwidth]{cookbooks/composition-active/doc/visit0006.png}
-  \caption{\it Active compositional fields: Temperature fields at $t=0, 2, 4, 8,
-  12, 20$. The black line is the isocontour line $c_1(\mathbf x,t)=0.5$
-    delineating the position of the dense material at the bottom.}
-  \label{fig:composition-active-temperature}
-\end{figure}
-
-Results of this model are visualized in
-Figs.~\ref{fig:composition-active-composition} and \ref{fig:composition-active-temperature}. What is visible is
-that over the course of the simulation, the material that starts at the bottom
-of the domain remains there. This can only happen if the circulation is
-significantly affected by the high density material once the interface starts
-to become non-horizontal, and this is
-indeed visible in the velocity vectors. As a second consequence, if the
-material at the bottom does not move away, then there needs to be a different
-way for the heat provided at the bottom to get through the bottom layer:
-either there must be a secondary convection system in the bottom layer, or
-heat is simply conducted. The pictures in the figure seem to suggest
-that the latter is the case.
-
-It is easy, using the
-outline above, to play with the various factors that drive this system, namely:
-\begin{itemize}
-  \item The magnitude of the velocity prescribed at the top.
-  \item The magnitude of the velocities induced by thermal buoyancy, as
-  resulting from the magnitude of gravity and the thermal expansion coefficient.
-  \item The magnitude of the velocities induced by compositional variability, as
-  described by the coefficient $\gamma$ and the magnitude of gravity.
-\end{itemize}
-Using the coefficients involved in these considerations, it is trivially
-possible to map out the parameter space to find which of these effects is
-dominant. As mentioned in discussing the values in the input file, what is
-important is the \textit{relative} size of these parameters, not the fact
-that currently the density in the material at the bottom is 100 times larger
-than in the rest of the domain, an effect that from a physical perspective
-clearly makes no sense at all.
+\input{cookbooks/composition_active/doc/composition_active.tex}
 
 
 \paragraph{The active case with reactions.}
@@ -5317,270 +5144,16 @@ necessary to advect fields. They also provide the appearance of no diffusion,
 though this is arguable. Leaving aside the debate whether fields or particles are the
 way to go, \aspect{} supports both: using fields and using particles.
 
-In order to advect particles along with the flow field, one just needs to
-add the \texttt{particles} postprocessor to the list of postprocessors and specify
-a few parameters. We do so in the
-\url{cookbooks/composition-passive-particles.prm} input file, which is otherwise
-just a minor variation of the \url{cookbooks/composition-passive.prm} case
-discussed in the previous Section~\ref{sec:cookbooks-composition}. In
-particular, the postprocess section now looks like this:
 
-\index[prmindex]{Number of particles}
-\index[prmindexfull]{Postprocess!Particles!Number of particles}
+% cookbooks/composition_passive_particles/
 
-\lstinputlisting[language=prmfile]{cookbooks/composition-passive-particles/doc/particles.part.prm.out}
-
-The 1000 particles we are asking here are initially uniformly distributed
-throughout the domain and are, at the end of each time step, advected along with
-the velocity field just computed. (There are a number of options to decide which
-method to use for advecting particles, see
-Section~\ref{parameters:Postprocess/Particles}.)
-
-If you run this cookbook, information about all particles will be written into
-the output directory selected in the input file (as discussed in
-\index[prmindex]{Output directory}
-\index[prmindexfull]{Output directory}
-Section~\ref{sec:running-overview}). In the current case, in addition to the
-files already discussed there, a directory listing at the end of a run will show
-several particle related files:
-\begin{lstlisting}[frame=single,language=ksh]
-aspect> ls -l output/
-total 932
--rw-rw-r-- 1 bangerth bangerth  11134 Dec 11 10:08 depth_average.gnuplot
--rw-rw-r-- 1 bangerth bangerth  11294 Dec 11 10:08 log.txt
--rw-rw-r-- 1 bangerth bangerth 326074 Dec 11 10:07 parameters.prm
--rw-rw-r-- 1 bangerth bangerth 577138 Dec 11 10:07 parameters.tex
-drwxrwxr-x 2 bangerth bangerth   4096 Dec 11 18:40 particles
--rw-rw-r-- 1 bangerth bangerth    335 Dec 11 18:40 particles.pvd
--rw-rw-r-- 1 bangerth bangerth    168 Dec 11 18:40 particles.visit
-drwxr-xr-x 2 bangerth bangerth   4096 Dec 11 10:08 solution
--rw-rw-r-- 1 bangerth bangerth    484 Dec 11 10:08 solution.pvd
--rw-rw-r-- 1 bangerth bangerth    451 Dec 11 10:08 solution.visit
--rw-rw-r-- 1 bangerth bangerth   8267 Dec 11 10:08 statistics
-\end{lstlisting}
-Here, the \texttt{particles.pvd} and \texttt{particles.visit} files contain
-a list of all visualization files from all processors and time steps. These
-files can be loaded in much the same way as the \texttt{solution.pvd} and
-\texttt{solution.visit} files that were discussed in Section~\ref{sec:viz}. The
-actual data files -- possibly a large number, but not of much immediate interest
-to users -- are located in the \texttt{particles} subdirectory.
-
-Coming back to the example at hand, we can visualize the particles that
-were advected along by opening both the field-based output files and the ones
-that correspond to particles (for example, \texttt{output/solution.visit} and
-\texttt{output/particles.visit}) and using a pseudo-color plot
-for the particles, selecting the ``id'' of particles to color each particle.
-By going to, for example, the output from the 72nd visualization output, this
-then results in a plot like the one shown in
-Fig.~\ref{fig:composition-passive-particles}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.5\textwidth]{cookbooks/composition-passive-particles/doc/solution-00072.png}
-  \caption{\it Passively advected quantities visualized through both a
-  compositional field and a set of 1,000 particles, at $t=7.2$.}
-  \label{fig:composition-passive-particles}
-\end{figure}
-
-The particles shown here are not too impressive in still pictures since they are
-colorized by their particle number, which does not carry any particular meaning
-other than the fact that it enumerates the particles.%
-\footnote{Particles are enumerated in a way so that first the first processor
-in a parallel computations numbers all of the particles on its first cell, then
-its second cell, and so on; then the second processor does the same with
-particles in the order of the cells it owns; etc. Thus, the ``id'' shown in the
-picture is not just a random number, but rather shows the order of cells and
-how they belonged to the processors that participated in the computation at the
-time when particles were created. After some time, particles may of course have
-become well mixed. In any case, this ordering is of no real practical use.}
-The particle ``id'' can, however, be useful when viewing an animation of time steps.
-There, the different colors of particles allows the eye to follow the motion of
-a single particle. This is especially true if, after some time, particles have
-become well mixed by the flow field and adjacent particles no longer have
-similar colors. In any case, viewing such animations makes it rather intuitive
-to understand a flow field, but it can of course not be reproduced in a static medium such as this manual.
-
-In any case, we will see in the next section how to attach more interesting
-information to particles, and how to visualize these.
+\input{cookbooks/composition_passive_particles/doc/composition_passive_particles.tex}
 
 
-\paragraph{Using particle properties.}
+% cookbooks/composition_active_particles/
 
-The particles in the above example only fulfill the purpose of
-visualizing the convection pattern. A more meaningful use for
-particles is to attach ``properties'' to them. A property consists of
-one or more numbers (or vectors or tensors) that may either be set at
-the beginning of the model run and stay constant, or are updated
-during the model runtime. These properties can then be used for many
-applications, e.g., storing an initial property (like the position, or
-initial composition), evaluating a property at a defined particle path (like the
-pressure-temperature evolution of a certain piece of rock), or by integrating a
-quantity along a particle path (like the integrated strain a certain domain has
-experienced).  We illustrate these properties in the cookbook
-\url{cookbooks/composition-passive-particles-properties.prm}, in which we add the
-following lines to the \texttt{Particles} subsection (we also increase the number
-of particles compared to the previous section to make the visualizations below
-more obvious):
+\input{cookbooks/composition_active_particles/doc/composition_active_particles.tex}
 
-\lstinputlisting[language=prmfile]{cookbooks/composition-passive-particles/doc/particle-properties.part.prm.out}
-
-These commands make sure that every particle will carry four different
-properties (\texttt{function}, \texttt{pT path}, \texttt{initial
-  position} and \texttt{initial composition}), some of which may be
-scalars and others can have multiple components. (A full list of
-particle properties that can currently be selected can be found in
-Section~\ref{parameters:Postprocess/Particles}, and new particle
-properties can be added as plugins as described in
-Section~\ref{sec:write-plugin}.) The properties selected above do the following:
-
-\begin{itemize}
-\item \texttt{initial position:} This particle property simply stores
-  the initial coordinates of the particle and then never changes them. This
-  can be useful to compare the final position of a particle with its
-  initial position and therefore determine how far certain domains traveled
-  during the model runtime. Alternatively, one may want to simply visualize
-  the norm of this vector property (i.e., the norm of the initial position,
-  which is of course equal to the distance from the origin at which a particle
-  started): in mantle simulations in spherical coordinates, the radius is
-  indicative of which part of the mantle a particle comes from, and can
-  therefore be used to visualize where material gets transported over the course
-  of a simulation.
-\item \texttt{initial composition:} This property uses the same
-  method to initialize particle properties as is used to initialize
-  the corresponding compositional fields. Using this, it stores the
-  compositional field initialization values at the location where the particle
-  started, and again never changes them. This is useful in the same
-  context as shown for the field-based example in
-  Section~\ref{sec:cookbooks-composition} where we would like to
-  figure where materials ends up. In this case, one would set the
-  initial composition to an indicator function for certain parts of
-  the domain, and then set the initial composition property for the
-  particles to match this composition. Letting the particles advect
-  and at a later time visualizing this particle property will then
-  show where particles came from. In cases where compositional
-  variables undergo changes, e.g., by describing phase changes or
-  chemical reactions, the ``initial composition'' property can also be
-  useful to compare the final composition of a particle with its
-  initial composition and therefore determine which regions underwent
-  reactions such as those described in Section~\ref{sec:cookbooks-composition},
-  and where the material that underwent this reaction got transported
-  to.
-\item \texttt{function:} This particle property can be used to assign
-  to each particle values that are described based on a function of
-  space. It provides an alternative way to set initial values if you
-  don't want to first set a compositional field's initial values based
-  on a function, and then copy these values via the ``initial
-  composition'' property to particles. In the example above, we use
-  the same function as for the compositional initial composition of
-  field number one in
-  Section~\ref{sec:cookbooks-composition}. Therefore, this property
-  should behave identical to the compositional field (except that the
-  compositional field may have a reaction term that this particle
-  property does not), although the two are of course advected using
-  very different methods. This allows to compare the error in particle
-  position to the numerical diffusion of the compositional field.
-\item \texttt{pT path:} This property is interesting in that the
-  particle property's values always exactly mirror the pressure and
-  temperature at the particle's current location. This does not seem
-  to be very useful since the information is already
-  available. However, because each particle has a unique id, one can
-  select a particular particle and output its properties
-  (including pressure and temperature based on the \texttt{pT path}
-  property) at all time steps. This allows for the creation of a pressure-temperature curve of a certain piece of rock. This property is interesting in many lithosphere and crustal scale models, because it is determining the metamorphic reactions that happen during deformation processes (e.g., in a subduction zone).
-\end{itemize}
-
-\begin{figure}
-  \centering
-  \phantom{.}
-  \hfill
-  \includegraphics[width=0.45\textwidth]{cookbooks/composition-passive-particles-properties/doc/composition-C1.png}
-  \hfill
-  \includegraphics[width=0.45\textwidth]{cookbooks/composition-passive-particles-properties/doc/particles-C1.png}
-  \phantom{.}
-  \\
-  \phantom{.}
-  \hfill
-  \includegraphics[width=0.45\textwidth]{cookbooks/composition-passive-particles-properties/doc/initial-position-00000.png}
-  \hfill
-  \includegraphics[width=0.45\textwidth]{cookbooks/composition-passive-particles-properties/doc/initial-position-00199.png}
-  \phantom{.}
-  \caption{\it Passively advected particle properties visualized. Top row:
-  Composition $C_1$ and particle property ``initial $C_1$''. The blue line in both
-  figures is the 0.5-isocontour for the $C_1$ field. Bottom row: Norm of the
-  ``initial position'' of particles at $t=0$ and $t=20$.}
-  \label{fig:composition-passive-particles-properties}
-\end{figure}
-
-The results of all of these properties can of course be visualized.
-Fig.~\ref{fig:composition-passive-particles-properties} shows some of the pictures
-one can create with particles.
-The top row shows both the composition field $C_1$ (along with the mesh on
-which it is defined) and the corresponding ``initial $C_1$'' particle property,
-at $t=7.2$. Because the compositional field does not undergo any reactions, it should of
-course simply be the initial composition advected along with the flow field,
-and therefore equal the values of the corresponding particle property. However,
-field-based compositions suffer from diffusion. On the other hand, the amount
-of diffusion can easily be decreased by mesh refinement.
-
-The bottom of the figure shows the norm of the ``initial position'' property at
-the initial time and at time $t=20$. These images therefore show how far from
-the origin each of the particles shown was at the initial time.
-
-
-\paragraph{Using active particles.}
-In the examples above, particle properties passively track distinct
-model properties.  These particle properties, however, may also be used
-to actively influence the model as it runs.  For instance, a
-composition-dependent material model may use particles' initial
-composition rather than an advected compositional field. To make this
-work -- i.e., to get information from particles that are located at
-unpredictable locations, to the quadrature
-points at which material models and other parts of the code need to
-evaluate these properties -- we need to somehow get the values from
-particles back to fields that can then be evaluated at any point where
-this is necessary.
-A slightly modified version of the active-composition cookbook (\url{cookbooks/composition-active.prm}) illustrates how to use `active particles' in this manner.
-
-This cookbook, \url{cookbooks/composition-active-particles.prm}, modifies two sections of the input file.  First, particles are added under the \texttt{Postprocess} section:
-
-\lstinputlisting[language=prmfile]{cookbooks/composition-active-particles/doc/particles.part.prm.out}
-Here, each particle will carry the \texttt{velocity} and
-\texttt{initial composition} properties.  In order to use the particle initial composition value to modify the flow through the material model, we now modify the \texttt{Composition} section:
-
-\lstinputlisting[language=prmfile]{cookbooks/composition-active-particles/doc/composition.part.prm.out}
-
-What this does is the following: It says that there will be two
-compositional fields, called \texttt{lower} and \texttt{upper}
-(because we will use them to indicate material that comes from either
-the lower or upper part of the domain). Next, the
-\texttt{Compositional field methods} states that each of these fields
-will be computed by interpolation from the particles (if we had left
-this parameter at its default value, \texttt{field}, for each field,
-then it would have solved an advection PDE in each time step, as we
-have done in all previous examples).
-
-In this case, we specify that both of the compositional fields are in
-fact interpolated from particle properties in each time step. How this
-is done is described in the fourth line. To understand it, it is
-important to realize that particles and fields have matching names: We
-have named the fields \texttt{lower} and \texttt{upper}, whereas the
-properties that result from the \texttt{initial composition} entry in
-the particles section are called \texttt{initial lower} and
-\texttt{initial upper}, since they inherit the names of the fields.
-
-The syntax for interpolation from particles to fields then
-states that the \texttt{lower} field will be set to the interpolated
-value of the \texttt{initial lower} particle property at the end of
-each time step, and similarly
-for the \texttt{upper} field. In turn, the
-\texttt{initial composition} particle property was using the same
-method that one would have used for the compositional field
-initialization if these fields were actually advected along in each
-time step.
-
-In this model the given global refinement level (5), associated number of cells (1024) and 100,000 total particles produces an average particle-per-cell count slightly below 100.  While on the high end compared to most geodynamic studies using active particles, increasing the number of particles per cell further may alter the solution.  As with the numerical resolution, any study using active particles should systematically vary the number of particles per cell in order to determine this parameter's influence on the simulation.
-
-\note{\aspect{}'s particle implementation is in a preliminary state. While the accuracy and scalability of the implementation is benchmarked, other limitations remain. This in particular means that it is not optimized for performance, and more than a few thousand particles per process can slow down a model significantly. Moreover, models with a highly adaptive mesh and many particles do encounter a significant slowdown, because \aspect{} only considers the number of degrees of freedom for load balancing across processes and not the number of particles. Therefore processes that compute the solution for coarse-grid regions have to process many more particles than other processes. Additionally, the checkpoint/restart functionality for particles is only implemented in models with a constant number of processes before and after the checkpoint and when the selected particle properties do not change. These limitations might be removed over time, but for current models the user should be aware of them.}
 
 \subsubsection{Using a free surface}
 \label{sec:cookbooks-freesurface}
@@ -5944,7 +5517,7 @@ it is possible to produce many interesting flow fields such as the ones visualiz
   ~
   \subfigure[]{
     \includegraphics[width=.48\textwidth]{cookbooks/prescribed_velocity/doc/circle.png}}
-    \caption{Examples of flows with prescribed internal velocities, as described in Section \ref{sec:prescribed-velocities}.}
+    \caption{\it Examples of flows with prescribed internal velocities, as described in Section \ref{sec:prescribed-velocities}.}
     \label{fig:prescribed-velocity}
 \end{figure}
 
@@ -5976,7 +5549,7 @@ Figure~\ref{fig:smoothing}.
   ~
   \subfigure[]{
     \includegraphics[width=.48\textwidth]{cookbooks/shell_simple_2d_smoothing/doc/without_smoothing.png}}
-    \caption{Artificial viscosity smoothing: Example of the output of two similar runs.  The run on the left has the artificial viscosity smoothing turned on and the run on the right does not, as described in Section \ref{sec:artificial-viscosity-smoothing}.}
+    \caption{\it Artificial viscosity smoothing: Example of the output of two similar runs.  The run on the left has the artificial viscosity smoothing turned on and the run on the right does not, as described in Section \ref{sec:artificial-viscosity-smoothing}.}
     \label{fig:smoothing}
 \end{figure}
 
@@ -6020,7 +5593,7 @@ properties are read in from the subsection \texttt{Simple model}.
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{cookbooks/finite_strain/doc/finite_strain.pdf}
-    \caption{Accumulated finite strain in an example convection model, as described in Section
+    \caption{\it Accumulated finite strain in an example convection model, as described in Section
              \ref{sec:finite-strain} at a time of 67.6~Ma. Top panel: Temperature distribution. Bottom panel:
              Natural strain distribution. Additional black crosses are the scaled eigenvectors of the
              stretching tensor $\mathbf L$, showing the direction of stretching and compression.}
@@ -6096,7 +5669,7 @@ have already been assigned to each path (Figure~\ref{fig:jelly-picture}).
 \begin{figure}[tb]
     \centering
     \includegraphics[width=0.2\textwidth]{cookbooks/geomio/doc/jellyfish.pdf}
-    \caption{Vector drawing of a jellyfish.}
+    \caption{\it Vector drawing of a jellyfish.}
     \label{fig:jelly-picture}
 \end{figure}
 \note{The page of your drawing in Inkscape should already have the extents (in px) that you later want to use in your model (in m).}
@@ -6115,7 +5688,7 @@ You can plot the \texttt{Phase} variable in MATLAB to see if the drawing was rea
 \begin{figure}[tb]
     \centering
     \includegraphics[width=0.45\textwidth]{cookbooks/geomio/doc/jelly.png}
-    \caption{Plot of the \texttt{Phase} variable in MATLAB.}
+    \caption{\it Plot of the \texttt{Phase} variable in MATLAB.}
     \label{fig:jelly-plot}
 \end{figure}
 Finally, we want to write output in a format that can be read in by \aspect{}'s \texttt{ascii data} compositional
@@ -6133,7 +5706,7 @@ boundaries between the different phases (Figure~\ref{fig:jelly-paraview}).
 \begin{figure}[tb]
     \centering
     \includegraphics[width=0.55\textwidth]{cookbooks/geomio/doc/jelly-paraview.pdf}
-    \caption{\aspect{} model output of the jellyfish and corresponding mesh in ParaView.}
+    \caption{\it \aspect{} model output of the jellyfish and corresponding mesh in ParaView.}
     \label{fig:jelly-paraview}
 \end{figure}
 
@@ -6797,7 +6370,7 @@ part of the visualization. The upwelling and downwelling flow along the
 equator causes alternating topography high and lows at the top and
 bottom surface (Figure~\ref{fig:pp}).
 In Figure~\ref{fig:pp} c, d we have subtracted the mean dynamic topography from
-the output field as a postproceesing step outside of \aspect{}. Since mass is
+the output field as a postprocessing step outside of \aspect{}. Since mass is
 conserved within the Earth, the mean dynamic topography
 should always be zero, however, the outputted values might not fulfill this
 constraint if the resolution of the model is not high enough to provide an
@@ -7018,156 +6591,9 @@ and gravity anomalies from ASPECT and a spectral based code shows good agreement
 \input{cookbooks/gplates/doc/gplates.tex}
 
 
-\subsubsection{2D compressible convection with a reference profile and material properties from BurnMan}
-\label{sec:cookbooks-burnman}
-\textit{This section was contributed by Juliane Dannberg and Ren{\'e} Gassm{\"o}ller}
+% cookbooks/burnman/
 
-In this cookbook we will set up a compressible mantle convection model that uses
-the (truncated) anelastic liquid approximation (see Sections~\ref{sec:ala} and
-\ref{sec:tala}), together with a reference profile read in from an ASCII data file.
-The data we use here is generated with the open source mineral physics toolkit BurnMan
-(\url{http://www.burnman.org}) using the python example program \texttt{simple\_adiabat.py}.
-This file is available as a part of BurnMan, and provides a tutorial for how to generate
-ASCII data files that can be used together with \aspect{}.
-The computation is based on the Birch-Murnaghan equation of state, and uses a harzburgitic
-composition. However, in principle, other compositions or equations of state can be used,
-as long as the reference profile contains data for the reference temperature, pressure, density,
-gravity, thermal expansivity, specific heat capacity and compressibility. Using BurnMan
-to generate the reference profile has the advantage that all the material property data
-are consistent, for example, the gravity profile is computed using the reference density.
-\begin{figure}
-  \includegraphics[width=\textwidth]{cookbooks/burnman/doc/reference_profile.pdf}
-  \caption{\it Reference profile generated using BurnMan.}
-  \label{fig:burnman-reference-profile}
-\end{figure}
-The reference profile is shown in Figure~\ref{fig:burnman-reference-profile}, and the corresponding data file
-is located at \url{data/adiabatic-conditions/ascii-data/isentrope_properties.txt}.
-
-\paragraph{Setting up the \aspect{} model.}
-In order to use this profile, we have to import and use the data in the adiabatic conditions
-model, in the gravity model and in the material model, which is done using the corresponding
-ASCII data plugins. The input file is provided in \url{cookbooks/burnman.prm}, and it uses the
-2d shell geometry previously discussed in Section~\ref{sec:shell-simple-2d} and surface velocities
-imported from GPlates as explained in Section~\ref{sec:cookbooks-gplates}.
-
-To use the BurnMan data in the material model, we have to specify that we want to use the
-\texttt{ascii reference profile} model. This material model makes use of the functionality provided by
-the \texttt{AsciiData} classes in \aspect{}, which allow plugins such as material models,
-boundary or initial conditions models to read in ASCII data files (see for example Section~\ref{sec:geomio}).
-Hence, we have to provide the directory and file name of the data to be used in the separate subsection
-\texttt{Ascii data model}, and the same functionality and syntax will also be used for the
-adiabatic conditions and gravity model.
-
-The viscosity in this model is computed as the product of a profile $\eta_r(z)$, where $z$ corresponds to the depth direction of the chosen geometry model, and a
-term that describes the dependence on temperature:
-\begin{align*}
-\eta(z,T) = \eta_r(z) \eta_0 \exp\left(-A \frac{T - T_{\text{adi}}}{T_{\text{adi}}}\right),
-\end{align*}
-where $A$ and $\eta_0$ are constants determined in the input file via the parameters
-\texttt{Viscosity} and \texttt{Thermal viscosity exponent}, and $\eta_r(z)$ is a stepwise constant
-function that determines the viscosity profile. This function can be specified by providing a list of
-\texttt{Viscosity prefactors} and a list of depths that describe in which depth range each prefactor
-should be applied, in other words, at which depth the viscosity changes. By default, it is set
-to viscosity jumps at 150\,km depth, between upper mantle and transition zone,
-and between transition zone and lower mantle). The prefactors used here lead to a low-viscosity
-asthenosphere, and high viscosities in the lower mantle. To make sure that these viscosity jumps
-do not lead to numerical problems in our computation (see Section~\ref{sec:sinker-with-averaging}),
-we also use harmonic averaging of the material properties.
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/material_model.part.prm.out}
-As the reference profile has a depth dependent density and also contains data for the compressibility,
-this material model supports compressible convection models.
-
-For the adiabatic conditions and the gravity model, we also specify that we want to use the respective
-\texttt{ascii data} plugin, and provide the data directory in the same way as for the material
-model. The gravity model automatically uses the same file as the adiabatic conditions model.
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/adiabatic_conditions.part.prm.out}
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/gravity_model.part.prm.out}
-
-To make use of the reference state we just imported from BurnMan, we choose a formulation of the
-equations that employs a reference state and compressible convection, in this case the anelastic
-liquid approximation (see Section~\ref{sec:ala}).
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/formulation.part.prm.out}
-This means that the reference profiles are used for all material properties in the model, except for
-the density in the buoyancy term (on the right-hand side of the force balance equation~\eqref{eq:stokes-1},
-which in the limit of the anelastic liquid approximation becomes Equation~\eqref{eq:stokes-ALA-1}).
-In addition, the density derivative in the mass conservation equation
-(see Section~\ref{sec:mass-conservation-approximation}) is taken from the adiabatic
-conditions, where it is computed as the depth derivative of the provided reference density profile
-(see also Section~\ref{sec:combined_formulations}).
-
-\paragraph{Visualizing the model output.}
-If we look at the output of our model (for example in \texttt{ParaView}), we can see how cold, highly
-viscous slabs are subducted and hot plumes rise from the core-mantle boundary. The final time step of
-the model is shown in Figure~\ref{fig:burnman-convection}, and the full model evolution can be found
-at \url{https://youtu.be/nRBOpw5kp-4}.
-Visualizing material properties such as density, thermal expansivity or specific heat shows how they
-change with depth, and reveals abrupt jumps at the phase transitions, where properties change from one
-mineral phase to the next. We can also visualize the gravity and the adiabatic profile, to ensure that
-the data we provided in the \url{data/adiabatic-conditions/ascii-data/isentrope_properties.txt} file
-is used in our model.
-
-\begin{figure}
-  \includegraphics[width=0.48\textwidth]{cookbooks/burnman/doc/temperature.png}
-  \hfill
-  \includegraphics[width=0.48\textwidth]{cookbooks/burnman/doc/viscosity.png}
-  \caption{\it Compressible convection in a 2d spherical shell, using a reference profile exported
-               form BurnMan, which is based on the Birch-Murnaghan equation of state. The figure shows the
-               state at the end of the model evolution over 260\,Ma.}
-  \label{fig:burnman-convection}
-\end{figure}
-
-\paragraph{Comparing different model approximations.}
-For the model described above, we have used the anelastic liquid approximation. However, one might want
-to use different approximations that employ a reference state, such as the truncated anelastic liquid
-approximation (TALA, see Section~\ref{sec:tala}), which is also supported by the
-\texttt{ascii reference profile} material model. In this case, the only change compared to ALA
-is in the density used in the buoyancy term, the only place where the temperature-dependent density
-instead of the reference density is used. For the TALA, this density only depends on the temperature
-(and not on the dynamic pressure, as in the ALA). Hence, we have to make this change in the appropriate
-place in the material model (while keeping the formulation of the equations set to
-\texttt{anelastic liquid approximation}):
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/tala.part.prm.out}
-
-We now want to compare these commonly used approximations to the ``isothermal compression approximation''
-(see Section~\ref{sec:ica}) that is unique to \aspect{}. It does not require a reference state and uses
-the full density everywhere in the equations except for the right-hand side  mass conservation, where the
-compressibility is used to compute the density derivative with regard to pressure.
-Nevertheless, this formulation can make use of the reference profile computed by BurnMan and compute the
-dependence of material properties on temperature and pressure in addition to that by taking into account
-deviations from the reference profile in both temperature and pressure. As this requires a modification
-of the equations outside of the material model, we have to specify this change in the
-\texttt{Formulation} (and remove the lines for the use of TALA discussed above).
-\lstinputlisting[language=prmfile]{cookbooks/burnman/doc/formulation_ica.part.prm.out}
-As the ``isothermal compression approximation'' is also \aspect{}'s default for compressible models,
-the same model setup can also be achieved by just removing the lines that specify which \texttt{Formulation}
-should be used.
-
-The Figures~\ref{fig:burnman-comparison} and \ref{fig:burnman-vrms} show a comparison between the different
-models. They demonstrate that upwellings and downwellings may occur in slightly different places and at
-slightly different times when using a different approximation, but averaged model properties describing
-the state of the model -- such as the root mean square velocity -- are similar between the models.
-
-\begin{figure}
-\centering
-  \includegraphics[width=0.95\textwidth]{cookbooks/burnman/doc/comparison.pdf}
-  \caption{\it Comparison between the anelastic liquid approximation,
-               the truncated anelastic liquid approximation
-               and the isothermal compression approximation,
-               showing the temperature distribution for the different models at
-               the end of the model evolution at 260\,Ma.}
-  \label{fig:burnman-comparison}
-\end{figure}
-
-\begin{figure}
-\centering
-  \includegraphics[width=0.5\textwidth]{cookbooks/burnman/doc/vrms.pdf}
-  \caption{\it Comparison between the anelastic liquid approximation,
-               the truncated anelastic liquid approximation
-               and the isothermal compression approximation,
-               showing the evolution of the root mean square velocity.}
-  \label{fig:burnman-vrms}
-\end{figure}
-
+\input{../../cookbooks/burnman/doc/burnman.tex}
 
 
 \subsubsection{Reproducing rheology of Morency and Doin, 2004}
@@ -7224,201 +6650,16 @@ In particular, the following sections of the input file are important to reprodu
   \label{fig:md-1}
 \end{figure}
 
-\subsubsection{Crustal deformation}
-\label{sec:cookbooks-crustal-deformation}
 
-\textit{This section was contributed by Cedric Thieulot, and makes use of the Drucker-Prager
-material model written by Anne Glerum and the free surface plugin by Ian Rose.}
+% cookbooks/crustal_deformation
 
-This is a simple example of an upper-crust undergoing compression or extension.
-It is characterized by a single layer of visco-plastic material subjected to basal
-kinematical boundary conditions. In compression, this setup is somewhat analogous
-to \cite{will99}, and in extension to \cite{alht11}.
-
-Brittle failure is approximated by adapting the viscosity to limit the stress
-that is generated during deformation.
-This ``cap'' on the stress level is parameterized in this experiment by the pressure-dependent
-Drucker Prager yield criterion  and we therefore make use of the Drucker-Prager
-material model (see Section \ref{parameters:Material_20model}) in the
-{\tt cookbooks/crustal\_model\_2D.prm}.
-
-The layer is assumed to have dimensions of 80km $\times$ 16km and to have a density  $\rho=2800$ kg/m$^3$.
-The plasticity parameters are specified as follows:
-
-\lstinputlisting[language=prmfile]{cookbooks/crustal_deformation/doc/crustal_model_2D_part1.prm.out}
-
-The yield strength $\sigma_y$ is a function of pressure, cohesion and angle of friction
-(see Drucker-Prager material model in Section \ref{parameters:Material_20model}),
-and the effective viscosity is then computed as follows:
-\[
-\mu_{\text{eff}} = \left( \frac{1}{ \frac{\sigma_y}{2 \dot{\epsilon}}+
-\mu_{\text{min}}} + \frac{1}{\mu_{\text{max}}}  \right)^{-1}
-\]
-where $\dot{\epsilon}$ is the square root of the second invariant of the deviatoric strain rate.
-The viscosity cutoffs insure that the viscosity remains within computationally acceptable values.
-
-During the first iteration of the first timestep, the strain rate is zero, so
-we avoid dividing by zero by setting the strain rate to {\tt Reference strain rate}.
+\input{cookbooks/crustal_deformation/doc/crustal_deformation.tex}
 
 
-The top boundary is a free surface while the left, right and bottom boundaries are subjected
-to the following boundary conditions:
+% cookbooks/continental_extension
 
-\lstinputlisting[language=prmfile]{cookbooks/crustal_deformation/doc/crustal_model_2D_part2.prm.out}
+\input{cookbooks/continental_extension/doc/continental_extension.tex}
 
-Note that compressive boundary conditions are simply achieved by reversing
-the sign of the imposed velocity.
-
-The free surface will be advected up and down according to the solution of the Stokes solve.
-We have a choice whether to advect the free surface in the direction of the surface normal
-or in the direction of the local vertical (i.e., in the direction of gravity).
-For small deformations, these directions are almost the same, but in this example the deformations
-are quite large. We have found that when the deformation is large, advecting the surface vertically
-results in a better behaved mesh, so we set the following in the free surface subsection:
-
-\lstinputlisting[language=prmfile]{cookbooks/crustal_deformation/doc/crustal_model_2D_part3.prm.out}
-
-We also make use of the strain rate-based mesh refinement plugin:
-
-\lstinputlisting[language=prmfile]{cookbooks/crustal_deformation/doc/crustal_model_2D_part4.prm.out}
-
-Setting
-{\tt   set Initial adaptive refinement        = 4}
-yields a series of meshes as shown in Fig. (\ref{fig:meshes}), all produced during the
-first timestep. As expected, we see that the location of the highest mesh refinement
-corresponds to the location of a set of conjugated shear bands.
-
-If we now set this parameter to 1 and allow the simulation to evolve
-for 500kyr, a central graben or plateau (depending on the nature
-of the boundary conditions) develops and deepens/thickens over time, nicely showcasing
-the unique capabilities of the code to handle free surface large deformation, localised
-strain rates through visco-plasticity and adaptive mesh refinement as
-shown in Fig. (\ref{fig:extcompr}).
-
-\begin{figure}
-   \centering
-   \includegraphics[width=0.7\textwidth]{cookbooks/crustal_deformation/doc/grids.png}
-   \caption{\it Mesh evolution during the first timestep (refinement is based on strain rate).}
-   \label{fig:meshes}
-\end{figure}
-
-
-
-Deformation localizes at the basal velocity discontinuity and plastic shear bands
-form at an angle of approximately $53\degree$ to the bottom in extension and
-$35\degree$ in compression, both of which correspond to the reported Arthur angle \cite{kaus10,buit12}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{cookbooks/crustal_deformation/doc/both.png}
-  \caption{\it Finite element mesh, velocity, viscosity and strain rate fields
-  in the case of extensional boundary conditions (top) and compressive boundary conditions (bottom) at t=500kyr.}
-  \label{fig:extcompr}
-\end{figure}
-
-
-
-\paragraph{Extension to 3D.} We can easily modify the previous
-input file to produce {\tt crustal\_model\_3D.prm}
-which implements a similar setup, with the additional constraint that the position
-of the velocity discontinuity varies with the $y$-coordinate,
-as shown in Fig. (\ref{fig:bottombc}).
-The domain is now
-$128\times96\times16$km and the boundary conditions are implemented as
-follows:
-
-\lstinputlisting[language=prmfile]{cookbooks/crustal_deformation/doc/crustal_model_3D_part1.prm.out}
-
-The presence of
-an offset between the two velocity discontinuity zones leads to a transform
-fault which connects them.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{cookbooks/crustal_deformation/doc/bottombc2.png}
-  \caption{\it Basal velocity boundary conditions and corresponding
-  strain rate field for the 3D model.}
-  \label{fig:bottombc}
-\end{figure}
-
-The Finite Element mesh, the velocity, viscosity and strain rate fields are shown
-in Fig. (\ref{fig:ext3D}) at the end of the first time steps. The reader is encouraged
-to run this setup in time to look at how the two grabens interact as a function
-of their initial offset \cite{alht11,alht12,alhf13}.
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{cookbooks/crustal_deformation/doc/all3D.png}
-\caption{\it Finite element mesh, velocity, viscosity and strain rate fields at
-the end of the first time step after one level of strain rate-based adaptive mesh refinement.}
-\label{fig:ext3D}
-\end{figure}
-
-\subsubsection{Continental extension}
-\label{sec:cookbooks-continental-extension}
-\textit{This section was contributed by John Naliboff}
-
-In the crustal deformation examples above, the viscosity depends solely on the Drucker Prager yield criterion defined by the cohesion and internal friction angle. While this approximation works reasonably well for the uppermost crust, deeper portions of the lithosphere may undergo either brittle or viscous deformation, with the latter depending on a combination of composition, temperature, pressure and strain-rate. In effect, a combination of the Drucker-Prager and Diffusion dislocation material models is required. The visco-plastic material model is designed to take into account both brittle (plastic) and non-linear viscous deformation, thus providing a template for modeling complex lithospheric processes. Such a material model can be used in \aspect{} using the following set of input parameters:
-
-\lstinputlisting[language=prmfile]{cookbooks/continental_extension/doc/continental_extension_material_model.prm.out}
-
-This cookbook provides one such example where the continental lithosphere undergoes extension. Notably, the model design follows that of numerous previously published continental extension studies~\cite[and references therein]{Hui11,Bru14,Nal15}.
-
-\paragraph{Continental Extension}
-The 2D Cartesian model spans 400 (x) by 100 (y) km and has a finite element grid with uniform 2 km spacing. Unlike the crustal deformation cookbook (see Section~\ref{sec:cookbooks-crustal-deformation}, the mesh is not refined with time.
-
-\lstinputlisting[language=prmfile]{cookbooks/continental_extension/doc/continental_extension_geometry_mesh.prm.out}
-
-
-Similar to the crustal deformation examples above, this model contains a free surface. Deformation is driven by constant horizontal ($x$-component) velocities (0.25 cm/yr) on the side boundaries ($y$-velocity component unconstrained), while the bottom boundary has vertical inflow to balance the lateral outflow. The top, and bottom boundaries have fixed temperatures, while the sides are insulating. The bottom boundary is also assigned a fixed composition, while the top and sides are unconstrained.
-
-\lstinputlisting[language=prmfile]{cookbooks/continental_extension/doc/continental_extension_boundary_conditions.prm.out}
-
-Sections of the lithosphere with distinct properties are represented by compositional fields for the upper crust (20 km thick), lower crust (10 km thick) and mantle lithosphere (70 km thick). A mechanically weak seed within the mantle lithosphere helps localize deformation. Material (viscous flow law parameters, cohesion, internal friction angle) and thermodynamic properties for each compositional field are based largely on previous numerical studies.   Dislocation creep viscous flow parameters are taken from published deformation experiments for wet quartzite \cite{RB04}, wet anorthite \cite{RGWD06} and dry olivine \cite{HK04}.
-
-\lstinputlisting[language=prmfile]{cookbooks/continental_extension/doc/continental_extension_composition.prm.out}
-
-The initial thermal structure, radiogenic heating model and associated thermal properties are consistent with the prescribed thermal boundary conditions and produce a geotherm characteristic of the continental lithosphere. The equations defining the initial geotherm \cite{Cha86} follow the form
-\begin{align}
-  \label{eq:continental-geotherm-1}
-  T(z) &= T_T + \frac{q_T}{k}z - \frac{Az^2}{2k}
-\end{align}
-where T is temperature, z is depth, $T_T$ is the temperature at the layer surface (top), $q_T$ is surface heat flux, $k$ is thermal conductivity, and $A$ is radiogenic heat production.
-
-For a layer thickness $\Delta z$, the basal temperature ($T_B$) and heat flux ($q_B$) are
-\begin{align}
-  \label{eq:continental-geotherm-2}
-  T_B &= T_T + \frac{q_T}{k} \Delta z - \frac{A \Delta z^2}{2k},
-  \\
-  \label{eq:continental-geotherm-3}
-  q_B &= q_T - A \Delta z.
-\end{align}
-
-In this example, specifying the top (273 K) and bottom temperature (1573 K), thermal conductivity of each layer and radiogenic heat production in each layer provides enough constraints to successively solve for the temperature and heat flux at the top of the lower crust and mantle.
-
-As noted above, the mechanically weak seed placed within the mantle localizes the majority of deformation onto two conjugate shear bands that propagate from the surface of the seed to the free surface. After 5 million years of extension background `stretching' is clearly visible in the strain-rate field, but deformation is still largely focused within the set of conjugate shear bands originating at the weak seed  (Fig.~\ref{fig:continental_extension_cookbook_strainrate_5e6yr}). As expected, crustal thickness and surface topography patterns reveal a relatively symmetric horst and graben structure, which arises from displacements along the shear bands (Fig.~\ref{fig:continental_extension_cookbook_composition_5e6yr}). While deformation along the two major shear bands dominates at this early stage of extension, additional shear bands often develop within the horst-graben system leading to small inter-graben topographic variations. This pattern is illustrated in a model with double the numerical resolution (initial 1 km grid spacing) after 10 million years of extension  (Fig.~\ref{fig:continental_extension_cookbook_strainrate_highres_10e6yr}).
-
-With further extension for millions of years, significant crustal thinning and surface topography development should occur in response to displacement along the conjugate shear bands. However, given that the model only extends to 100 km depth, the simulation will not produce a realistic representation of continental breakup due to the lack of an upwelling asthenosphere layer. Indeed, numerical studies that examine continental breakup, rather than just the initial stages of continental extension, include an asthenospheric layer or modified basal boundary conditions (e.g. Winkler boundary condition \cite[for example]{Bru14})
-as temperature variations associated with lithospheric thinning exert a first-order influence on the deformation patterns. As noted below, numerous additional parameters may also affect the temporal evolution of deformation patterns.
-
-\note{It is important to consider that the non-linearity of visco-plastic rheologies and mesh-dependence of brittle shear bands make lithospheric deformation models highly sensitive to a large number of parameters. In order to ensure the conclusions drawn from a series of numerical experiments are robust, one should complete a sensitivity test for a large range of parameters including grid resolution, model geometry, boundary conditions, initial composition and temperature conditions, material properties, composition discretization, CFL number and solver settings. If you are new to modeling lithospheric processes, a reasonable starting point is to try and reproduce results from a relevant previous study and then perform a sensitivity test for the parameters listed above. While highly time consuming, completing this procedure will prove invaluable when you design and assess the results of your own numerical study.}
-
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{cookbooks/continental_extension/doc/continental_extension_cookbook_strainrate_5e6yr.png}
-\caption{\it Strain rate (in units of $s^{-1}$) after \num{5e6} years of extension. The black line marks the 550 $\degree C$ isotherm.}
-\label{fig:continental_extension_cookbook_strainrate_5e6yr}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{cookbooks/continental_extension/doc/continental_extension_cookbook_composition_5e6yr.png}
-\caption{\it Compositional field after \num{5e6} years of extension. The black line marks the 550 $\degree C$ isotherm.}
-\label{fig:continental_extension_cookbook_composition_5e6yr}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{cookbooks/continental_extension/doc/continental_extension_cookbook_strainrate_highres_10e6yr.png}
-\caption{\it Strain rate (in units of $s^{-1}$) after \num{10e6} years of extension. The black line marks the 550 $\degree C$ isotherm. The numerical resolution ($1 \si{km}$) is double that of the previous model.}
-\label{fig:continental_extension_cookbook_strainrate_highres_10e6yr}
-\end{figure}
 
 \subsubsection{Inner core convection}
 \label{sec:cookbooks-inner-core-convection}
@@ -7501,7 +6742,7 @@ Three main areas can be distinguished: the stable area, the plume convection are
 \begin{figure}[h]
 \begin{center}
 \includegraphics[height=0.57\textwidth]{cookbooks/inner_core_convection/doc/Diagstab.pdf}
-	\caption{Stability diagram for convection in a sphere with phase change at its outer boundary. The stability curves for the first unstable mode (l=1) and the translation are obtained from \cite{Deguen2013}. Each dot (no convection) and triangle (blue: translation, yellow: plume convection) is one model run done with ASPECT. The highest the Ra and P are, the more refinement is required (see text).}
+	\caption{\it Stability diagram for convection in a sphere with phase change at its outer boundary. The stability curves for the first unstable mode (l=1) and the translation are obtained from \cite{Deguen2013}. Each dot (no convection) and triangle (blue: translation, yellow: plume convection) is one model run done with ASPECT. The highest the Ra and P are, the more refinement is required (see text).}
     \label{fig:diagramme-regime}
 \end{center}
 \end{figure}
@@ -7530,7 +6771,7 @@ $Ra=10^5, \mathcal{P}=0.01$ (translation), $Ra=10, \mathcal{P}=30$ (no convectio
     \includegraphics[width=0.25\linewidth]{cookbooks/inner_core_convection/doc/no_convection.png}
     \includegraphics[width=0.25\linewidth]{cookbooks/inner_core_convection/doc/translation.png}
     \includegraphics[width=0.25\linewidth]{cookbooks/inner_core_convection/doc/convection.png}
-    \caption{Convection regimes in the inner core for different values of $Ra$ and $\mathcal{P}$. From left to right: no convection, translation, plume convection; the 2D slices at the top are with the default temperature scale for all panels, while in the second row an adaptive scale is used. The bottom row features slightly different model parameters (that are still in the same regime as the models in the respective panels above) and also shows the velocity as arrows.}
+    \caption{\it Convection regimes in the inner core for different values of $Ra$ and $\mathcal{P}$. From left to right: no convection, translation, plume convection; the 2D slices at the top are with the default temperature scale for all panels, while in the second row an adaptive scale is used. The bottom row features slightly different model parameters (that are still in the same regime as the models in the respective panels above) and also shows the velocity as arrows.}
     \label{fig:inner-core-regimes}
        \end{center}
 \end{figure}
@@ -7558,7 +6799,7 @@ Both trends are shown in Figure~\ref{fig:inner-core-trends} and can be compared 
     \includegraphics[width=0.49\textwidth]{cookbooks/inner_core_convection/doc/translation_over_Ra_P.pdf}
     \hfill
     \includegraphics[width=0.49\textwidth]{cookbooks/inner_core_convection/doc/translation_over_P.pdf}
-    \caption{Translation rate (approximated by the average of the velocity component in the direction of translation),
+    \caption{\it Translation rate (approximated by the average of the velocity component in the direction of translation),
     normalized to the low $\mathcal{P}$
     limit estimate given in \cite{Deguen2013}, as a function of $\frac{Ra}{\mathcal{P}}$ for $\mathcal{P}=10^{-2}$
     (left) and as a function of $\mathcal{P}$ for $Ra=10^5$ (right).
@@ -7605,7 +6846,7 @@ In the first few tens of millions of years, this models evolves similarly to the
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{cookbooks/global_melt/doc/model_evolution.pdf}
-    \caption{Evolution of the model without (left) and with (right) melt migration.}
+    \caption{\it Evolution of the model without (left) and with (right) melt migration.}
     \label{fig:global-melt}
 \end{figure}
 
@@ -7690,7 +6931,7 @@ The complete input file is located at \url{cookbooks/mid_ocean_ridge.prm}.
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{cookbooks/mid_ocean_ridge/doc/mid_ocean_ridge.pdf}
-    \caption{Mid-ocean ridge model after 8 million years. The top panel shows the depletion
+    \caption{\it Mid-ocean ridge model after 8 million years. The top panel shows the depletion
              and porosity fields (with the characteristic triangular melting region),
              the bottom panel shows the temperature distribution and the melt velocity, indicated
              by the arrows.}
@@ -7715,7 +6956,7 @@ A vertical profile at a distance of 80 km from the ridge axis showing this compo
 \begin{figure}
     \centering
     \includegraphics[width=0.35\textwidth]{cookbooks/mid_ocean_ridge/doc/depletion_profile.pdf}
-    \caption{Vertical profile through the model domain at a distance of 80 km from the ridge axis
+    \caption{\it Vertical profile through the model domain at a distance of 80 km from the ridge axis
              at the end of the model run, showing the distribution of depletion and enrichment as
              indicated by the peridotite field.}
     \label{fig:mid-ocean-ridge-profile}
@@ -7736,7 +6977,7 @@ Of course it is also possible to combine both methods for refining the mesh.
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{cookbooks/mid_ocean_ridge/doc/refinement.pdf}
-    \caption{Mesh after a time of 3.6 million years for a model using the composition threshold
+    \caption{\it Mesh after a time of 3.6 million years for a model using the composition threshold
              refinement strategy (left) and the compaction length refinement strategy (right)
              Background colors indicate the melt velocity. Its sharp gradients at the interface
              between regions with and without melt can only be resolved using the compaction
@@ -7830,7 +7071,7 @@ amounts to the following:
  \item Move into the directory of that particular benchmark:
 \begin{verbatim}
  $ cd benchmarks/solcx
-\end{verbatim} 
+\end{verbatim}
  \item Set up the project:
 \begin{verbatim}
  $ cmake .
@@ -7889,7 +7130,7 @@ We use bisection to determine $Ra_c$ for specific choices of the domain geometry
  \includegraphics[width=0.49\textwidth]{cookbooks/benchmarks/onset-of-convection/doc/racr.png}
  \hfill
  \includegraphics[width=0.49\textwidth]{cookbooks/benchmarks/onset-of-convection/doc/racr_error.png}
- \caption{Left: Comparison of numerically-determined and theoretical values for $Ra_c$. Red circles indicate numerical simulations unstable to convection, black circles indicate simulations that are stable. The green dashed curve indicates the theoretical prediction. Right: Relative error in determination of $Ra_c$. The dashed red line indicates the error tolerance used in bisection procedure.}
+ \caption{\it Left: Comparison of numerically-determined and theoretical values for $Ra_c$. Red circles indicate numerical simulations unstable to convection, black circles indicate simulations that are stable. The green dashed curve indicates the theoretical prediction. Right: Relative error in determination of $Ra_c$. The dashed red line indicates the error tolerance used in bisection procedure.}
  \label{fig:onset-1}
 \end{figure}
 
@@ -7924,9 +7165,9 @@ illustrate this.
 
 
 Although van Keken's paper title suggests that the paper is really about
-thermochemical convection, the part we look here can equally be considered as
-thermal or chemical convection: all that is necessary is that we describe the
-fluid's density somehow. We can do that by using an inhomogeneous initial
+thermochemical convection, the part we examine here can equally be considered as
+thermal or chemical convection; all that is necessary is that we describe the
+fluid's density. We can do that by using an inhomogeneous initial
 temperature field, or an inhomogeneous initial composition field. We will use the
 input file in \url{cookbooks/van-keken-discontinuous.prm} as input, the central
 piece of which is as follows (go to the actual input file
@@ -8041,6 +7282,7 @@ initial conditions instead (see also the file
 \url{cookbooks/van-keken-smooth.prm}):
 \lstinputlisting[language=prmfile]{cookbooks/benchmarks/van-keken/doc/smooth.part.prm.out}
 
+
 This replaces the discontinuous initial conditions with a smoothed out version
 with a half width of around 0.01. Using this, the root mean square plot now
 looks as shown in the right panel of Fig.~\ref{fig:vk-2}. Here, the second peak
@@ -8126,6 +7368,52 @@ Compared to the results of the models using constant viscosity throughout the do
 \end{figure}
 
 We can observe that when the two-layer viscosity model is added, there is only one apparent peak for each case. The first peaks of the 0.01 viscosity contrast tests appear earlier and are larger in magnitude than those of 0.1 viscosity contrast tests.  There are no secondary plumes and the whole system tends to reach stability after around 500 time steps.
+
+
+\subsubsection{Computation of the van Keken Problem with the Volume-of-Fluid Interface Tracking Method}
+\label{sec:van-keken VOF interface tracking}
+
+\textit{This section is a co-production of Jonathan Robey and E. G. Puckett.}
+
+\input{cookbooks/van-keken-vof/doc/van-keken-vof.tex}
+
+
+\subsubsection{The Bunge et al.~mantle convection experiments}
+\label{sec:bunge_et_al_cookbook}
+
+\textit{This section was contributed by Cedric Thieulot and Bob Myhill.}
+
+Early mantle modelling studies of the 1970s, 1980s and 1990s were often concerned with simple set-ups (Cartesian geometries, incompressible fluid, free slip boundary conditions) and investigated the influence of the Rayleigh number, the heating mode or the temperature dependence of the viscosity on temperature, pressure and/or strain rate \cite{youn74,buss75,buss79,BBC89,BC93,vavy93,burb97}. In this cookbook, we use the `simple' material model to reproduce the set-up in \cite{burb96}, which reported that even modest increases in mantle viscosity with depth could have a marked effect on the style of mantle convection. The prm file corresponding to this cookbook can be found at \url{cookbooks/bunge_et_al_mantle_convection/bunge_et_al.prm}.
+
+Although the original article showcases results obtained in a 3D hollow sphere, we here run the models in an annular domain of inner radius $R_i = 3480$ \si{\kilo\meter} and outer radius  $R_o = 6370$ \si{\kilo\meter}.
+The surface temperature is set to $T{\textsubscript{surf}}$ = 1060 \si{\kelvin} and 
+the bottom temperature to $T{\textsubscript{cmb}} = 3450$ \si{\kelvin}. The gravity vector is radial and its magnitude is $g = 10$ \si{\metre\per\second\squared}.
+
+There is a single incompressible fluid in the domain, characterized by $\rho_0 = 4500$ \si{\kilogram\per\metre\cubed}, $\alpha = 2.5\cdot10^{-5}$ \si{\per\kelvin}, 
+$k = 4$ \si{\watt\per\metre\per\kelvin},
+$C_p = 1000$ \si{\joule\per\kilogram\per\kelvin} and
+its internal heating rate is $Q{\textsubscript{int}} = 1\cdot10^{-12}$ \si{\watt\per\kilogram}.
+The interface between the upper mantle (viscosity $\eta\textsubscript{um}$)
+and the lower mantle (viscosity $\eta\textsubscript{lm}$) is fixed at 670 \si{\kilo\meter} depth.
+As in the article we consider four time-independent radial viscosity profiles:
+
+\begin{itemize}
+\item[a)] Isoviscous mantle: $\eta\textsubscript{um}=\eta\textsubscript{lm}=1.7\cdot 10^{24}$ \si{\pascal\second}
+\item[b)] Mantle with step change in viscosity: $\eta\textsubscript{um}=5.8\cdot 10^{22}$ \si{\pascal\second}, $\eta\textsubscript{lm}=30\eta\textsubscript{um}$
+\item[c)] Isoviscous mantle: $\eta\textsubscript{um}=\eta\textsubscript{lm}=5.8\cdot 10^{22}$ \si{\pascal\second}
+\item[d)] Mantle with step change in viscosity: $\eta\textsubscript{um}=7\cdot 10^{21}$ \si{\pascal\second},  $\eta\textsubscript{lm}=30\eta\textsubscript{um}$
+\end{itemize}
+
+Separate ascii files {\tt visc\_depth\_X.txt} with {\tt X=\{a,b,c,d\}} contain each of these viscosity profiles. The resulting temperature fields after 5 billion years of convection are shown in Fig.~\ref{fig:bunge_et_al}. Similar to the results obtained by \cite{burb96}, models in which the lower mantle is more viscous than the upper mantle are distinctly colder than their isoviscous equivalents, with more clearly defined upwellings. You can find a movie of how the temperature evolves over this time period at
+\url{https://youtu.be/5SPCU1sFGGc}.
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{cookbooks/bunge_et_al_mantle_convection/temps.png}
+  \caption{\it Bunge et al.~benchmark. From left to right: temperature field at time $t=5\cdot 10^9$ years obtained with viscosity profiles a, b, c and d.}
+  \label{fig:bunge_et_al}
+\end{figure}
+
 
 \subsubsection{The Rayleigh-Taylor instability}
 \label{sec:benchmark-rayleigh-taylor}
@@ -8236,14 +7524,14 @@ as explained by linear stability analysis \cite{wesc92,ramb81}.
     \includegraphics[width=0.48\textwidth]{cookbooks/polydiapirism/doc/diapirs0005.png}
     \includegraphics[width=0.48\textwidth]{cookbooks/polydiapirism/doc/diapirs0010.png}
     \includegraphics[width=0.48\textwidth]{cookbooks/polydiapirism/doc/diapirs0015.png}
-    \caption{Polydiapirism benchmark: Density field at $t=0,25,50,75\si{s}$.}
+    \caption{\it Polydiapirism benchmark: Density field at $t=0,25,50,75\si{s}$.}
     \label{fig:polydiapirs_density}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.75\textwidth]{cookbooks/polydiapirism/doc/vrms.pdf}
-    \caption{Polydiapirism benchmark: Root mean square velocity as a function of time}
+    \caption{\it Polydiapirism benchmark: Root mean square velocity as a function of time}
     \label{fig:polydiapirs_vrms}
 \end{figure}
 
@@ -8651,7 +7939,7 @@ Expected analytical solutions at two locations are summarised in Table~\ref{tab:
 Figure~\ref{fig:burstedde-benchmark} shows that the analytical solution is indeed retrieved by the model.
 
 \begin{table}[h!]
-\caption{Analytical solutions \label{tab:burstedde-table}}
+\caption{\it Analytical solutions \label{tab:burstedde-table}}
 \centering
 \begin{tabular}{l|c|c}
 Quantity & $\mathbf{r} = (0,0,0)$ & $\mathbf{r} = (1,1,1)$ \\ \hline
@@ -8674,7 +7962,7 @@ $|\mathbf{u}|$ & $0$ &  $14.177$ \\
   ~
   \subfigure[]{
     \includegraphics[width=0.48\textwidth]{cookbooks/benchmarks/burstedde/doc/velocity_z.png}}
-  \caption{Burstedde benchmark: Results for the 3D polynomial Stokes benchmark, obtained with a resolution of $16\times 16$ elements, with $\beta = 10$.}\label{fig:burstedde-benchmark}
+  \caption{\it Burstedde benchmark: Results for the 3D polynomial Stokes benchmark, obtained with a resolution of $16\times 16$ elements, with $\beta = 10$.}\label{fig:burstedde-benchmark}
 \end{figure}
 
 The convergence of the numerical error of this benchmark has been analysed by
@@ -8687,7 +7975,7 @@ $Q_1$ elements for the pressure.
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\textwidth]{cookbooks/benchmarks/burstedde/doc/errors.pdf}
-  \caption{Burstedde benchmark: Error convergence for the 3D polynomial Stokes
+  \caption{\it Burstedde benchmark: Error convergence for the 3D polynomial Stokes
     benchmark.
     \label{errors}}
 \end{figure}
@@ -8713,7 +8001,7 @@ boundary conditions are imposed at the top and bottom.
 \begin{figure}
 \centering
 \includegraphics[width=0.6\linewidth]{cookbooks/benchmarks/slab_detachment/doc/drawing.png}
-\caption{Slab detachment benchmark: Initial geometry
+\caption{\it Slab detachment benchmark: Initial geometry
 \label{fig:slab_detachment_setup}}
 \end{figure}
 
@@ -8739,7 +8027,7 @@ and the effect of viscosity and material averaging was explored in \cite{gltf18}
 \begin{figure}
 \centering
 \includegraphics[width=0.85\textwidth]{cookbooks/benchmarks/slab_detachment/doc/results.png}
-\caption{Slab detachment benchmark: a,b) velocity and strain rate fields at $t=0$.
+\caption{\it Slab detachment benchmark: a,b) velocity and strain rate fields at $t=0$.
 c,d,e) and f,g,h) time evolution of the viscosity and slab composition fields at $t=0, 6, 12\text{Myr}$.
 \label{fig:slab_detachment_evolution}}
 \end{figure}
@@ -8790,14 +8078,14 @@ and a second-order convergence rate for the pressure.
 \includegraphics[width=.3\textwidth]{cookbooks/benchmarks/hollow_sphere/doc/vel.png}
 \includegraphics[width=.3\textwidth]{cookbooks/benchmarks/hollow_sphere/doc/vel2.png}
 \includegraphics[width=.3\textwidth]{cookbooks/benchmarks/hollow_sphere/doc/pressure.png}
-\caption{Velocity and pressure fields for the hollow sphere benchmark.}
+\caption{\it Velocity and pressure fields for the hollow sphere benchmark.}
 \label{fig:hollow-sphere-vp}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[width=.7\textwidth]{cookbooks/benchmarks/hollow_sphere/doc/errors_hollowsphere.pdf}
-\caption{Velocity and pressure errors in the $L_2$-norm as a function of the mesh size.}
+\caption{\it Velocity and pressure errors in the $L_2$-norm as a function of the mesh size.}
 \label{fig:hollow-sphere-errors}
 \end{figure}
 
@@ -8837,7 +8125,7 @@ as shown in Fig.~\ref{fig:annulus-vp}.
 \includegraphics[width=.9\textwidth]{cookbooks/benchmarks/annulus/doc/pressures.png}
 \includegraphics[width=.9\textwidth]{cookbooks/benchmarks/annulus/doc/density.png}
 \includegraphics[width=.9\textwidth]{cookbooks/benchmarks/annulus/doc/velocities2.png}
-\caption{Pressure, density and velocity fields for $k=0,1,2,3$ for the 2D annulus benchmark.}
+\caption{\it Pressure, density and velocity fields for $k=0,1,2,3$ for the 2D annulus benchmark.}
 \label{fig:annulus-vp}
 \end{figure}
 
@@ -8849,7 +8137,7 @@ and a second-order convergence rate for the pressure.
 \begin{figure}
 \centering
 \includegraphics[width=.7\textwidth]{cookbooks/benchmarks/annulus/doc/errors_annulus.pdf}
-\caption{Velocity and pressure errors in the $L_2$-norm as a function of the mesh size for the 2D annulus benchmark.}
+\caption{\it Velocity and pressure errors in the $L_2$-norm as a function of the mesh size for the 2D annulus benchmark.}
 \label{fig:annulus-errors}
 \end{figure}
 
@@ -9458,7 +8746,7 @@ plumes. This is nicely reflected in the visualizations.
   \hfill
   \subfigure[Case 2.3]{\includegraphics[width=0.23\textwidth]{cookbooks/benchmarks/davies_et_al/doc/case23_final.png}}
   \hfill
-  \caption{Davies et al.~benchmarks: Final steady state temperature fields for
+  \caption{\it Davies et al.~benchmarks: Final steady state temperature fields for
     the 2D cylindrical benchmark cases.}
   \label{fig:davies-2DcylinderFSS}
 \end{figure}
@@ -9479,7 +8767,7 @@ different models used after that.
   \hfill
   \subfigure[Case 2.3]{\includegraphics[width=0.48\textwidth]{cookbooks/benchmarks/davies_et_al/doc/Case23Vrms.png}}
   \hfill
-  \caption{Davies et al.~benchmarks: $V_{\text{rms}}$ for 2D Cylindrical Cases. Large jumps occur when transitioning from case 2.1 to cases 2.2 and 2.3 due to the instantaneous change of parameter settings.}
+  \caption{\it Davies et al.~benchmarks: $V_{\text{rms}}$ for 2D Cylindrical Cases. Large jumps occur when transitioning from case 2.1 to cases 2.2 and 2.3 due to the instantaneous change of parameter settings.}
   \label{fig:davies-2DcylinderVrms}
 \end{figure}
 
@@ -9971,7 +9259,7 @@ $L_2$ norm, as expected when using the $Q_2\times Q_1$ element.
   ~
   \subfigure[]{
     \includegraphics[width=0.31\textwidth]{cookbooks/benchmarks/doneahuerta/doc/vel.png}}
-  \caption{Donea \& Huerta benchmark: Results for the 2D polynomial Stokes benchmark,
+  \caption{\it Donea \& Huerta benchmark: Results for the 2D polynomial Stokes benchmark,
 obtained with a resolution of $32\times 32$ elements. (a) Gravity field, (b) pressure field,
 (c) velocity field. }\label{fig:doneahuerta-benchmark}
 \end{figure}
@@ -9995,13 +9283,13 @@ Both benchmarks have the identical setup in the temperature and a compositional 
 \begin{figure}[t!]
   \centering
     \includegraphics[width=\textwidth]{cookbooks/benchmarks/advection/doc/drop.png}%
-  \caption{Dropping box benchmark at final time. Left: entropy viscosity. Right: SUPG.}\label{fig:benchmark-drop}
+  \caption{\it Dropping box benchmark at final time. Left: entropy viscosity. Right: SUPG.}\label{fig:benchmark-drop}
 \end{figure}
 
 \begin{figure}[t!]
   \centering
     \includegraphics[width=\textwidth]{cookbooks/benchmarks/advection/doc/rotate_shape.png}%
-  \caption{Rotating shapes benchmark at final time: Left: reference. Middle: Entropy viscosity. Right: SUPG.}\label{fig:benchmark-rotate-shape}
+  \caption{\it Rotating shapes benchmark at final time: Left: reference. Middle: Entropy viscosity. Right: SUPG.}\label{fig:benchmark-rotate-shape}
 \end{figure}
 
 
@@ -10263,7 +9551,7 @@ was used for a given set of models. Two examples for keeping a separate shared
 library for model specific changes are discussed in
 Section~\ref{sec:prescribed-velocities}, and in
 Section~\ref{sec:cookbooks-inner-core-convection}. We will discuss the concept
-begind plugins in Section~\ref{sec:plugins}, and how to write a plugin in
+of plugins in Section~\ref{sec:plugins}, and how to write a plugin in
 Section~\ref{sec:write-plugin}.
 \end{enumerate}
 
@@ -12507,9 +11795,9 @@ will bring you to a new page, where you have to go to the ``Artifacts'' tab in t
 right corner. Depending on the tester, the file might be called \texttt{changes-gcc.diff}
 or \texttt{changes-test-results.diff}). To use this file to update your test output, you
 will have to download it and put it into your top-level \aspect{} directory. There you
-can apply the .diff file using the program patch:
+can apply the .diff file using:
 \begin{lstlisting}[frame=single,language=ksh]
-  patch -p1 < changes-test-results.diff
+  git apply changes-test-results.diff
 \end{lstlisting}
 This will update your test output so that it matches the results from the official tester.
 
@@ -12582,14 +11870,20 @@ resources:
   for public and archived mailing lists, you can contact the
   primary developers:
   \begin{itemize}
-  \item Wolfgang
-    Bangerth: \url{bangerth@colostate.edu},
-  \item Juliane
-    Dannberg: \url{judannberg@gmail.com},
-  \item Rene
-    Gassm{\"o}ller: \url{rene.gassmoeller@mailbox.org},
-  \item Timo
-    Heister: \url{heister@clemson.edu}.
+  \item Wolfgang Bangerth:
+    \url{bangerth@colostate.edu},
+  \item Juliane Dannberg:
+    \url{judannberg@gmail.com},
+  \item Menno Fraters:
+    \url{menno.fraters@outlook.com},
+  \item Rene Gassm{\"o}ller:
+    \url{rene.gassmoeller@mailbox.org},
+  \item Anne Glerum:
+    \url{acglerum@gfz-potsdam.de},
+  \item Timo Heister:
+    \url{heister@clemson.edu},
+  \item John Naliboff:
+    \url{john.naliboff@gmail.com}.
   \end{itemize}
 \end{itemize}
 

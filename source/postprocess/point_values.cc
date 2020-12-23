@@ -112,8 +112,7 @@ namespace aspect
         }
 
       // finally push these point values all onto the list we keep
-      point_values.push_back (std::make_pair (this->get_time(),
-                                              current_point_values));
+      point_values.emplace_back (this->get_time(), current_point_values);
 
       // now write all of the data to the file of choice. start with a pre-amble that
       // explains the meaning of the various fields
@@ -136,20 +135,17 @@ namespace aspect
             f << " <" << this->introspection().name_for_compositional_index(c) << ">";
           f << '\n';
 
-          for (std::vector<std::pair<double, std::vector<Vector<double> > > >::iterator
-               time_point = point_values.begin();
-               time_point != point_values.end();
-               ++time_point)
+          for (const auto &time_point : point_values)
             {
-              Assert (time_point->second.size() == evaluation_points_cartesian.size(),
+              Assert (time_point.second.size() == evaluation_points_cartesian.size(),
                       ExcInternalError());
               for (unsigned int i=0; i<evaluation_points_cartesian.size(); ++i)
                 {
-                  f << /* time = */ time_point->first / (this->convert_output_to_years() ? year_in_seconds : 1.)
+                  f << /* time = */ time_point.first / (this->convert_output_to_years() ? year_in_seconds : 1.)
                     << ' '
                     << /* location = */ evaluation_points_cartesian[i] << ' ';
 
-                  for (unsigned int c=0; c<time_point->second[i].size(); ++c)
+                  for (unsigned int c=0; c<time_point.second[i].size(); ++c)
                     {
                       // output a data element. internally, we store all point
                       // values in the same format in which they were computed,
@@ -158,11 +154,11 @@ namespace aspect
                       if ((this->introspection().component_masks.velocities[c] == false)
                           ||
                           (this->convert_output_to_years() == false))
-                        f << time_point->second[i][c];
+                        f << time_point.second[i][c];
                       else
-                        f << time_point->second[i][c] * year_in_seconds;
+                        f << time_point.second[i][c] * year_in_seconds;
 
-                      f << (c != time_point->second[i].size()-1 ? ' ' : '\n');
+                      f << (c != time_point.second[i].size()-1 ? ' ' : '\n');
                     }
                 }
 
@@ -259,12 +255,6 @@ namespace aspect
             }
 
           use_natural_coordinates = prm.get_bool("Use natural coordinates");
-
-          if (use_natural_coordinates)
-            AssertThrow (!Plugins::plugin_type_matches<const GeometryModel::Sphere<dim>>(this->get_geometry_model()) &&
-                         !Plugins::plugin_type_matches<const GeometryModel::SphericalShell<dim>>(this->get_geometry_model()),
-                         ExcMessage ("This postprocessor can not be used if the geometry "
-                                     "is a sphere or spherical shell, because these geometries have not implemented natural coordinates."));
 
           // Convert the vector of coordinate arrays in Cartesian or natural
           // coordinates to a vector of Point<dim> of Cartesian coordinates.

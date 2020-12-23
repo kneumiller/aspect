@@ -283,7 +283,11 @@ namespace aspect
       velocity(input_data.solution_values.size(), numbers::signaling_nan<Tensor<1,dim> >()),
       composition(input_data.solution_values.size(), std::vector<double>(introspection.n_compositional_fields, numbers::signaling_nan<double>())),
       strain_rate(input_data.solution_values.size(), numbers::signaling_nan<SymmetricTensor<2,dim> >()),
+#if DEAL_II_VERSION_GTE(9,3,0)
+      current_cell(input_data.template get_cell<dim>()),
+#else
       current_cell(input_data.template get_cell<DoFHandler<dim> >()),
+#endif
       requested_properties(MaterialProperties::all_properties)
     {
       for (unsigned int q=0; q<input_data.solution_values.size(); ++q)
@@ -838,6 +842,17 @@ namespace aspect
 
     template <int dim>
     NamedAdditionalMaterialOutputs<dim>::
+    NamedAdditionalMaterialOutputs(const std::vector<std::string> &output_names,
+                                   const unsigned int n_points)
+      :
+      output_values(output_names.size(), std::vector<double>(n_points, numbers::signaling_nan<double>())),
+      names(output_names)
+    {}
+
+
+
+    template <int dim>
+    NamedAdditionalMaterialOutputs<dim>::
     ~NamedAdditionalMaterialOutputs()
     {}
 
@@ -848,6 +863,21 @@ namespace aspect
     NamedAdditionalMaterialOutputs<dim>::get_names() const
     {
       return names;
+    }
+
+
+
+    template<int dim>
+    std::vector<double>
+    NamedAdditionalMaterialOutputs<dim>::get_nth_output(const unsigned int idx) const
+    {
+      // In this function we extract the values for the nth output
+      // The number of outputs is the outer vector
+      Assert (output_values.size() > idx,
+              ExcMessage ("The requested output index is out of range for output_values."));
+      Assert (output_values[idx].size() > 0,
+              ExcMessage ("There must be one or more points for the nth output."));
+      return output_values[idx];
     }
 
 

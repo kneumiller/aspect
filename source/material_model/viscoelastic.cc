@@ -123,13 +123,13 @@ namespace aspect
                              "List of viscosities for background mantle and compositional fields, "
                              "for a total of N+1 values, where N is the number of compositional fields. "
                              "If only one value is given, then all use the same value. "
-                             "Units: \\si{\\pascal\\second}");
+                             "Units: \\si{\\pascal\\second}.");
           prm.declare_entry ("Thermal conductivities", "4.7",
                              Patterns::List(Patterns::Double (0.)),
                              "List of thermal conductivities for background mantle and compositional fields, "
                              "for a total of N+1 values, where N is the number of compositional fields. "
                              "If only one value is given, then all use the same value. "
-                             "Units: \\si{\\watt\\per\\meter\\per\\kelvin} ");
+                             "Units: \\si{\\watt\\per\\meter\\per\\kelvin}.");
           prm.declare_entry ("Viscosity averaging scheme", "harmonic",
                              Patterns::Selection("arithmetic|harmonic|geometric|maximum composition "),
                              "When more than one compositional field is present at a point "
@@ -240,9 +240,9 @@ namespace aspect
                                    "The overview below directly follows Moresi et al. (2003) eqns. 23-32. "
                                    "However, an important distinction between this material model and "
                                    "the studies above is the use of compositional fields, rather than "
-                                   "tracers, to track individual components of the viscoelastic stress "
+                                   "particles, to track individual components of the viscoelastic stress "
                                    "tensor. The material model will be updated when an option to track "
-                                   "and calculate viscoelastic stresses with tracers is implemented. "
+                                   "and calculate viscoelastic stresses with particles is implemented. "
                                    "\n\n "
                                    "Moresi et al. (2003) begins (eqn. 23) by writing the deviatoric "
                                    "rate of deformation ($\\hat{D}$) as the sum of elastic "
@@ -261,20 +261,20 @@ namespace aspect
                                    "$W_{ij} = \\frac{1}{2} \\left (\\frac{\\partial V_{i}}{\\partial x_{j}} - "
                                    "\\frac{\\partial V_{j}}{\\partial x_{i}} \\right )$. "
                                    "\n\n "
-                                   "The Jaumann stress-rate can also be approximated using terms from the time "
-                                   "at the previous time step ($t$) and current time step ($t + \\Delta t^{e}$): "
+                                   "The Jaumann stress-rate can also be approximated using terms from the "
+                                   "previous time step ($t$) and current time step ($t + \\Delta t^{e}$): "
                                    "$\\smash[t]{\\overset{\\nabla}{\\tau}}^{t + \\Delta t^{e}} \\approx "
                                    "\\frac{\\tau^{t + \\Delta t^{e} - \\tau^{t}}}{\\Delta t^{e}} - "
                                    "W^{t}\\tau^{t} + \\tau^{t}W^{t}$. "
                                    "In this material model, the size of the time step above ($\\Delta t^{e}$) "
                                    "can be specified as the numerical time step size or an independent fixed time "
-                                   "step. If the latter case is a selected, the user has an option to apply a "
+                                   "step. If the latter case is selected, the user has an option to apply a "
                                    "stress averaging scheme to account for the differences between the numerical "
                                    "and fixed elastic time step (eqn. 32). If one selects to use a fixed elastic time "
                                    "step throughout the model run, this can still be achieved by using CFL and "
                                    "maximum time step values that restrict the numerical time step to a specific time."
                                    "\n\n "
-                                   "The formulation above allows rewriting the total rate of deformation (eqn. 29) as "
+                                   "The formulation above allows rewriting the total deviatoric stress (eqn. 29) as\n "
                                    "$\\tau^{t + \\Delta t^{e}} = \\eta_{eff} \\left ( "
                                    "2\\hat{D}^{t + \\triangle t^{e}} + \\frac{\\tau^{t}}{\\mu \\Delta t^{e}} + "
                                    "\\frac{W^{t}\\tau^{t} - \\tau^{t}W^{t}}{\\mu}  \\right )$. "

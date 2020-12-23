@@ -45,8 +45,7 @@ namespace aspect
                                                                std::pair<std::string,unsigned int> > > &properties)
       {
         unsigned int global_component_index = 0;
-        for (unsigned int plugin_index = 0;
-             plugin_index < properties.size(); ++plugin_index)
+        for (const auto &property : properties)
           {
             unsigned int component_per_plugin = 0;
             unsigned int field_per_plugin = 0;
@@ -54,10 +53,10 @@ namespace aspect
             position_per_plugin.push_back(global_component_index);
 
             for (unsigned int field_index = 0;
-                 field_index < properties[plugin_index].size(); ++field_index)
+                 field_index < property.size(); ++field_index)
               {
-                const std::string  name         = properties[plugin_index][field_index].first;
-                const unsigned int n_components = properties[plugin_index][field_index].second;
+                const std::string  name         = property[field_index].first;
+                const unsigned int n_components = property[field_index].second;
 
                 field_names.push_back(name);
                 components_per_field.push_back(n_components);
@@ -306,18 +305,16 @@ namespace aspect
         std::vector<std::vector<std::pair<std::string, unsigned int> > > info;
 
         // Get the property information of the selected plugins
-        for (typename std::list<std::unique_ptr<Interface<dim> > >::const_iterator
-             p = property_list.begin(); p!=property_list.end(); ++p)
+        for (const auto &p : property_list)
           {
-            info.push_back((*p)->get_property_information());
+            info.push_back(p->get_property_information());
           }
 
         // Initialize our property information
         property_information = ParticlePropertyInformation(info);
-        for (typename std::list<std::unique_ptr<Interface<dim> > >::const_iterator
-             p = property_list.begin(); p!=property_list.end(); ++p)
+        for (const auto &p : property_list)
           {
-            (*p)->initialize();
+            p->initialize();
           }
       }
 
@@ -333,11 +330,10 @@ namespace aspect
         std::vector<double> particle_properties;
         particle_properties.reserve(property_information.n_components());
 
-        for (typename std::list<std::unique_ptr<Interface<dim> > >::const_iterator
-             p = property_list.begin(); p!=property_list.end(); ++p)
+        for (const auto &p : property_list)
           {
-            (*p)->initialize_one_particle_property(particle->get_location(),
-                                                   particle_properties);
+            p->initialize_one_particle_property(particle->get_location(),
+                                                particle_properties);
           }
 
         Assert(particle_properties.size() == property_information.n_components(),
@@ -442,23 +438,23 @@ namespace aspect
       Manager<dim>::need_update () const
       {
         UpdateTimeFlags update = update_never;
-        for (typename std::list<std::unique_ptr<Interface<dim> > >::const_iterator
-             p = property_list.begin(); p!=property_list.end(); ++p)
+        for (const auto &p : property_list)
           {
-            update = std::max(update,(*p)->need_update());
+            update = std::max(update, p->need_update());
           }
         return update;
       }
+
+
 
       template <int dim>
       UpdateFlags
       Manager<dim>::get_needed_update_flags () const
       {
         UpdateFlags update = update_default;
-        for (typename std::list<std::unique_ptr<Interface<dim> > >::const_iterator
-             p = property_list.begin(); p!=property_list.end(); ++p)
+        for (const auto &p : property_list)
           {
-            update |= (*p)->get_needed_update_flags();
+            update |= p->get_needed_update_flags();
           }
 
         return (update & (update_default | update_values | update_gradients));
@@ -627,11 +623,11 @@ namespace aspect
 
         // then go through the list, create objects and let them parse
         // their own parameters
-        for (unsigned int name=0; name<plugin_names.size(); ++name)
+        for (auto &plugin_name : plugin_names)
           {
             aspect::Particle::Property::Interface<dim> *
             particle_property = std::get<dim>(registered_plugins)
-                                .create_plugin (plugin_names[name],
+                                .create_plugin (plugin_name,
                                                 "Particle property plugins");
 
             property_list.push_back (std::unique_ptr<Property::Interface<dim> >

@@ -44,7 +44,7 @@ namespace aspect
       {
         // First store the names of the data fields that should be written
         dataset_names.reserve(property_information.n_components()+1);
-        dataset_names.push_back("id");
+        dataset_names.emplace_back("id");
 
         // This is a map from an index for the particle property vector to an index in the output
         // vector. Values equal 0 indicate a property will not be written, values bigger 0
@@ -100,16 +100,10 @@ namespace aspect
             // If the property has dim components, we treat it as vector
             if (n_components == dim)
               {
-#if DEAL_II_VERSION_GTE(9,1,0)
                 vector_datasets.push_back(std::make_tuple(property_index_to_output_index[field_position],
                                                           property_index_to_output_index[field_position]+n_components-1,
                                                           field_name,
                                                           DataComponentInterpretation::component_is_part_of_vector));
-#else
-                vector_datasets.push_back(std::make_tuple(property_index_to_output_index[field_position],
-                                                          property_index_to_output_index[field_position]+n_components-1,
-                                                          field_name));
-#endif
               }
           }
 
@@ -153,7 +147,6 @@ namespace aspect
         return dataset_names;
       }
 
-#if DEAL_II_VERSION_GTE(9,1,0)
       template <int dim>
       std::vector<
       std::tuple<unsigned int,
@@ -163,15 +156,6 @@ namespace aspect
       {
         return vector_datasets;
       }
-#else
-      template <int dim>
-      std::vector<std::tuple<unsigned int, unsigned int, std::string> >
-      ParticleOutput<dim>::get_vector_data_ranges () const
-      {
-        return vector_datasets;
-      }
-#endif
-
     }
 
     template <int dim>
@@ -282,8 +266,7 @@ namespace aspect
 
       // now also generate a .pvd file that matches simulation
       // time and corresponding .pvtu record
-      times_and_pvtu_file_names.push_back(std::make_pair
-                                          (time_in_years_or_seconds, "particles/"+pvtu_master_filename));
+      times_and_pvtu_file_names.emplace_back(time_in_years_or_seconds, "particles/"+pvtu_master_filename);
 
       const std::string
       pvd_master_filename = (this->get_output_directory() + "particles.pvd");
@@ -306,11 +289,9 @@ namespace aspect
         // the global .visit file needs the relative path because it sits a
         // directory above
         std::vector<std::string> filenames_with_path;
-        for (std::vector<std::string>::const_iterator it = filenames.begin();
-             it != filenames.end();
-             ++it)
+        for (const auto &filename : filenames)
           {
-            filenames_with_path.push_back("particles/" + (*it));
+            filenames_with_path.push_back("particles/" + filename);
           }
 
         output_file_names_by_timestep.push_back (filenames_with_path);
@@ -321,8 +302,8 @@ namespace aspect
 
       std::vector<std::pair<double, std::vector<std::string> > > times_and_output_file_names;
       for (unsigned int timestep=0; timestep<times_and_pvtu_file_names.size(); ++timestep)
-        times_and_output_file_names.push_back(std::make_pair(times_and_pvtu_file_names[timestep].first,
-                                                             output_file_names_by_timestep[timestep]));
+        times_and_output_file_names.emplace_back(times_and_pvtu_file_names[timestep].first,
+                                                 output_file_names_by_timestep[timestep]);
       DataOutBase::write_visit_record (global_visit_master, times_and_output_file_names);
     }
 
@@ -366,17 +347,15 @@ namespace aspect
                                                this->get_time() / year_in_seconds :
                                                this->get_time());
 
-      for (std::vector<std::string>::iterator output_format = output_formats.begin();
-           output_format != output_formats.end();
-           ++output_format)
+      for (const auto &output_format : output_formats)
         {
-          if (*output_format == "none")
+          if (output_format == "none")
             {
               // If we do not write output return early with the number of advected particles
               return std::make_pair("Number of advected particles:",
                                     Utilities::int_to_string(world.n_global_particles()));
             }
-          else if (*output_format=="hdf5")
+          else if (output_format=="hdf5")
             {
               const std::string particle_file_name = "particles/" + particle_file_prefix + ".h5";
               const std::string xdmf_filename = "particles.xdmf";
@@ -397,7 +376,7 @@ namespace aspect
               data_out.write_xdmf_file(xdmf_entries, this->get_output_directory() + xdmf_filename,
                                        this->get_mpi_communicator());
             }
-          else if (*output_format == "vtu")
+          else if (output_format == "vtu")
             {
               // Write master files (.pvtu,.pvd,.visit) on the master process
               const int my_id = Utilities::MPI::this_mpi_process(this->get_mpi_communicator());
@@ -446,7 +425,7 @@ namespace aspect
                   {
                     std::ostringstream tmp;
 
-                    data_out.write (tmp, DataOutBase::parse_output_format(*output_format));
+                    data_out.write (tmp, DataOutBase::parse_output_format(output_format));
                     file_contents = new std::string (tmp.str());
                   }
 
@@ -499,14 +478,14 @@ namespace aspect
                                            + "."
                                            +  Utilities::int_to_string (myid, 4)
                                            + DataOutBase::default_suffix
-                                           (DataOutBase::parse_output_format(*output_format));
+                                           (DataOutBase::parse_output_format(output_format));
 
               std::ofstream out (filename.c_str());
 
               AssertThrow(out,
                           ExcMessage("Unable to open file for writing: " + filename +"."));
 
-              data_out.write (out, DataOutBase::parse_output_format(*output_format));
+              data_out.write (out, DataOutBase::parse_output_format(output_format));
             }
         }
 
@@ -644,7 +623,7 @@ namespace aspect
 
           prm.declare_entry ("Exclude output properties", "",
                              Patterns::Anything(),
-                             "A comma seperated list of strings which exclude all particle"
+                             "A comma separated list of strings which exclude all particle"
                              "property fields which contain these strings. If one of the "
                              "entries is 'all', only a id will be provided for every point.");
         }

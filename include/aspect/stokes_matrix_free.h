@@ -43,6 +43,11 @@
 #include <deal.II/lac/la_parallel_vector.h>
 #include <deal.II/lac/la_parallel_block_vector.h>
 
+/**
+ * Typedef for the number type for the multigrid operators. Can be either float or double.
+ */
+using GMGNumberType = double;
+
 namespace aspect
 {
   using namespace dealii;
@@ -297,7 +302,7 @@ namespace aspect
       virtual void setup_dofs()=0;
 
       /**
-       * Evalute the MaterialModel to query for the viscosity on the active cells,
+       * Evaluate the MaterialModel to query for the viscosity on the active cells,
        * project this viscosity to the multigrid hierarchy, and cache the information
        * for later usage. Also sets pressure scaling and information regarding the
        * compressiblity of the flow.
@@ -305,7 +310,10 @@ namespace aspect
       virtual void evaluate_material_model()=0;
 
       /**
-       * Add correction to system RHS for non-zero boundary condition.
+       * Add correction to system RHS for non-zero boundary condition. For more information
+       * on exactly what this correction is and why it is computed, see the deal.II tutorial
+       * step 50 section "LaplaceProblem::assemble_rhs()":
+       * https://www.dealii.org/developer/doxygen/deal.II/step_50.html#LaplaceProblemassemble_rhs
        */
       virtual void correct_stokes_rhs()=0;
 
@@ -346,28 +354,28 @@ namespace aspect
        * Return a pointer to the object that describes the velocity DoF
        * constraints for the block GMG Stokes solver.
        */
-      virtual const ConstraintMatrix &
+      virtual const AffineConstraints<double> &
       get_constraints_v () const = 0;
 
       /**
        * Return a pointer to the object that describes the pressure DoF
        * constraints for the block GMG Stokes solver.
        */
-      virtual const ConstraintMatrix &
+      virtual const AffineConstraints<double> &
       get_constraints_p () const = 0;
 
       /**
        * Return a pointer to the MGTransfer object used for the A block
        * of the block GMG Stokes solver.
        */
-      virtual const MGTransferMatrixFree<dim,double> &
+      virtual const MGTransferMatrixFree<dim,GMGNumberType> &
       get_mg_transfer_A () const = 0;
 
       /**
        * Return a pointer to the MGTransfer object used for the Schur
        * complement block of the block GMG Stokes solver.
        */
-      virtual const MGTransferMatrixFree<dim,double> &
+      virtual const MGTransferMatrixFree<dim,GMGNumberType> &
       get_mg_transfer_S () const = 0;
 
       /**
@@ -381,7 +389,7 @@ namespace aspect
        * Return a pointer to the Tables containing the viscosities on
        * the multigrid levels used in the block GMG Stokes solver.
        */
-      virtual const MGLevelObject<Table<2, VectorizedArray<double>>> &
+      virtual const MGLevelObject<Table<2, VectorizedArray<GMGNumberType>>> &
       get_level_viscosity_tables() const = 0;
   };
 
@@ -425,15 +433,16 @@ namespace aspect
       void setup_dofs() override;
 
       /**
-       * Evalute the MaterialModel to query for the viscosity on the active cells,
+       * Evaluate the MaterialModel to query for the viscosity on the active cells,
        * project this viscosity to the multigrid hierarchy, and cache the information
        * for later usage. Also sets pressure scaling and information regarding the
-       * compressiblity of the flow.
+       * compressibility of the flow.
        */
       void evaluate_material_model() override;
 
       /**
-       * Add correction to system RHS for non-zero boundary condition.
+       * Add correction to system RHS for non-zero boundary condition. See description in
+       * StokesMatrixFreeHandler::correct_stokes_rhs() for more information.
        */
       void correct_stokes_rhs() override;
 
@@ -442,12 +451,6 @@ namespace aspect
        * operators on each level for the purpose of smoothing inside the multigrid v-cycle.
        */
       void build_preconditioner() override;
-
-      /**
-       * Get the workload imbalance of the distribution
-       * of the level hierarchy.
-       */
-      double get_workload_imbalance();
 
       /**
        * Declare parameters. (No actual parameters at the moment).
@@ -480,28 +483,28 @@ namespace aspect
        * Return a pointer to the object that describes the velocity DoF
        * constraints for the block GMG Stokes solver.
        */
-      const ConstraintMatrix &
+      const AffineConstraints<double> &
       get_constraints_v () const override;
 
       /**
        * Return a pointer to the object that describes the pressure DoF
        * constraints for the block GMG Stokes solver.
        */
-      const ConstraintMatrix &
+      const AffineConstraints<double> &
       get_constraints_p () const override;
 
       /**
        * Return a pointer to the MGTransfer object used for the A block
        * of the block GMG Stokes solver.
        */
-      const MGTransferMatrixFree<dim,double> &
+      const MGTransferMatrixFree<dim,GMGNumberType> &
       get_mg_transfer_A () const override;
 
       /**
        * Return a pointer to the MGTransfer object used for the Schur
        * complement block of the block GMG Stokes solver.
        */
-      const MGTransferMatrixFree<dim,double> &
+      const MGTransferMatrixFree<dim,GMGNumberType> &
       get_mg_transfer_S () const override;
 
       /**
@@ -515,7 +518,7 @@ namespace aspect
        * Return a pointer to the Tables containing the viscosities on
        * the multigrid levels used in the block GMG Stokes solver.
        */
-      const MGLevelObject<Table<2, VectorizedArray<double>>> &
+      const MGLevelObject<Table<2, VectorizedArray<GMGNumberType>>> &
       get_level_viscosity_tables() const override;
 
     private:
@@ -536,32 +539,35 @@ namespace aspect
       FESystem<dim> fe_projection;
 
       Table<2, VectorizedArray<double>> active_viscosity_table;
-      MGLevelObject<Table<2, VectorizedArray<double>>> level_viscosity_tables;
+      MGLevelObject<Table<2, VectorizedArray<GMGNumberType>>> level_viscosity_tables;
 
       // This variable is needed only in the setup in both evaluate_material_model()
       // and build_preconditioner(). It will be deleted after the last use.
-      MGLevelObject<dealii::LinearAlgebra::distributed::Vector<double> > level_viscosity_vector;
+      MGLevelObject<dealii::LinearAlgebra::distributed::Vector<GMGNumberType> > level_viscosity_vector;
 
-      typedef MatrixFreeStokesOperators::StokesOperator<dim,velocity_degree,double> StokesMatrixType;
-      typedef MatrixFreeStokesOperators::MassMatrixOperator<dim,velocity_degree-1,double> SchurComplementMatrixType;
-      typedef MatrixFreeStokesOperators::ABlockOperator<dim,velocity_degree,double> ABlockMatrixType;
+      using StokesMatrixType = MatrixFreeStokesOperators::StokesOperator<dim,velocity_degree,double>;
+      using SchurComplementMatrixType = MatrixFreeStokesOperators::MassMatrixOperator<dim,velocity_degree-1,double>;
+      using ABlockMatrixType = MatrixFreeStokesOperators::ABlockOperator<dim,velocity_degree,double>;
+
+      using GMGSchurComplementMatrixType = MatrixFreeStokesOperators::MassMatrixOperator<dim,velocity_degree-1,GMGNumberType>;
+      using GMGABlockMatrixType = MatrixFreeStokesOperators::ABlockOperator<dim,velocity_degree,GMGNumberType>;
 
       StokesMatrixType stokes_matrix;
       ABlockMatrixType A_block_matrix;
       SchurComplementMatrixType Schur_complement_block_matrix;
 
-      ConstraintMatrix constraints_v;
-      ConstraintMatrix constraints_p;
+      AffineConstraints<double> constraints_v;
+      AffineConstraints<double> constraints_p;
 
-      MGLevelObject<ABlockMatrixType> mg_matrices_A_block;
-      MGLevelObject<SchurComplementMatrixType> mg_matrices_Schur_complement;
+      MGLevelObject<GMGABlockMatrixType> mg_matrices_A_block;
+      MGLevelObject<GMGSchurComplementMatrixType> mg_matrices_Schur_complement;
 
       MGConstrainedDoFs mg_constrained_dofs_A_block;
       MGConstrainedDoFs mg_constrained_dofs_Schur_complement;
       MGConstrainedDoFs mg_constrained_dofs_projection;
 
-      MGTransferMatrixFree<dim,double> mg_transfer_A_block;
-      MGTransferMatrixFree<dim,double> mg_transfer_Schur_complement;
+      MGTransferMatrixFree<dim,GMGNumberType> mg_transfer_A_block;
+      MGTransferMatrixFree<dim,GMGNumberType> mg_transfer_Schur_complement;
   };
 }
 

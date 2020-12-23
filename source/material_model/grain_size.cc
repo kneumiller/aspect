@@ -711,7 +711,12 @@ namespace aspect
       if (in.current_cell.state() == IteratorState::valid)
         {
           // get the pressures and temperatures at the vertices of the cell
+#if DEAL_II_VERSION_GTE(9,3,0)
+          const QTrapezoid<dim> quadrature_formula;
+#else
           const QTrapez<dim> quadrature_formula;
+#endif
+
           const unsigned int n_q_points = quadrature_formula.size();
           FEValues<dim> fe_values (this->get_mapping(),
                                    this->get_fe(),
@@ -983,7 +988,7 @@ namespace aspect
           prm.declare_entry ("Phase transition temperatures", "",
                              Patterns::List (Patterns::Double (0.)),
                              "A list of temperatures where phase transitions occur. Higher or lower "
-                             "temperatures lead to phase transition ocurring in smaller or greater "
+                             "temperatures lead to phase transition occurring in smaller or greater "
                              "depths than given in Phase transition depths, depending on the "
                              "Clapeyron slope given in Phase transition Clapeyron slopes. "
                              "List must have the same number of entries as Phase transition depths. "
@@ -1108,7 +1113,7 @@ namespace aspect
           prm.declare_entry ("Diffusion creep grain size exponent", "3.",
                              Patterns::List (Patterns::Double (0.)),
                              "The diffusion creep grain size exponent $p_{diff}$ that determines the "
-                             "dependence of vescosity on grain size. "
+                             "dependence of viscosity on grain size. "
                              "Units: none.");
           prm.declare_entry ("Maximum temperature dependence of viscosity", "100.",
                              Patterns::Double (0.),

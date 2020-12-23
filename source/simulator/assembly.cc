@@ -120,7 +120,7 @@ namespace aspect
   template <int dim>
   void
   Simulator<dim>::
-  set_default_assemblers()
+  set_stokes_assemblers()
   {
     assemblers->stokes_preconditioner.push_back(std_cxx14::make_unique<aspect::Assemblers::StokesPreconditioner<dim> >());
     assemblers->stokes_system.push_back(std_cxx14::make_unique<aspect::Assemblers::StokesIncompressibleTerms<dim> >());
@@ -189,6 +189,13 @@ namespace aspect
       assemblers->stokes_system.push_back(
         std_cxx14::make_unique<aspect::Assemblers::StokesPressureRHSCompatibilityModification<dim> >());
 
+  }
+
+  template <int dim>
+  void
+  Simulator<dim>::
+  set_advection_assemblers()
+  {
     assemblers->advection_system.push_back(
       std_cxx14::make_unique<aspect::Assemblers::AdvectionSystem<dim> >());
 
@@ -257,7 +264,8 @@ namespace aspect
     if (!parameters.include_melt_transport
         && !assemble_newton_stokes_system)
       {
-        set_default_assemblers();
+        set_advection_assemblers();
+        set_stokes_assemblers();
       }
     else if (parameters.include_melt_transport
              && !assemble_newton_stokes_system)
@@ -267,6 +275,7 @@ namespace aspect
     else if (!parameters.include_melt_transport
              && assemble_newton_stokes_system)
       {
+        set_advection_assemblers();
         newton_handler->set_assemblers(*assemblers);
       }
     else if (parameters.include_melt_transport
@@ -358,9 +367,7 @@ namespace aspect
 
     const QGauss<dim> quadrature_formula(parameters.stokes_velocity_degree+1);
 
-    typedef
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-    CellFilter;
+    using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
 
     // determine which update flags to use for the cell integrals
     const UpdateFlags cell_update_flags
@@ -725,9 +732,7 @@ namespace aspect
     const QGauss<dim>   quadrature_formula(parameters.stokes_velocity_degree+1);
     const QGauss<dim-1> face_quadrature_formula(parameters.stokes_velocity_degree+1);
 
-    typedef
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-    CellFilter;
+    using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
 
     // determine which updates flags we need on cells and faces
     const UpdateFlags cell_update_flags
@@ -1143,9 +1148,7 @@ namespace aspect
     system_rhs.block(block_idx) = 0;
 
 
-    typedef
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-    CellFilter;
+    using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
 
     Vector<double> viscosity_per_cell;
     viscosity_per_cell.reinit(triangulation.n_active_cells());

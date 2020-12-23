@@ -24,6 +24,7 @@
 #include <aspect/utilities.h>
 #include <aspect/citation_info.h>
 #include <aspect/mesh_deformation/interface.h>
+#include <aspect/simulator/assemblers/advection.h>
 #include <deal.II/base/signaling_nan.h>
 
 #include <deal.II/dofs/dof_tools.h>
@@ -1462,11 +1463,15 @@ namespace aspect
   template <int dim>
   void
   MeltHandler<dim>::
-  add_current_constraints(ConstraintMatrix &constraints)
+  add_current_constraints(AffineConstraints<double> &constraints)
   {
     IndexSet nonzero_pc_dofs(this->introspection().index_sets.system_relevant_set.size());
 
+#if DEAL_II_VERSION_GTE(9,3,0)
+    const QTrapezoid<dim> quadrature_formula;
+#else
     const QTrapez<dim> quadrature_formula;
+#endif
     const UpdateFlags cell_update_flags = update_quadrature_points | update_values | update_gradients;
     const FiniteElement<dim> &fe = this->get_fe();
 
@@ -1513,9 +1518,7 @@ namespace aspect
     internal::PcNonZeroDofsAssembler<dim> assembler(is_melt_cell_vector, nonzero_pc_dofs);
     assembler.initialize_simulator(this->get_simulator());
 
-    typedef
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-    CellFilter;
+    using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
 
     const unsigned int stokes_dofs_per_cell = dim * fe.base_element(this->introspection().base_elements.velocities).dofs_per_cell
                                               + fe.base_element(this->introspection().base_elements.pressure).dofs_per_cell
@@ -1675,7 +1678,13 @@ namespace aspect
     assemblers.advection_system.push_back(
       std_cxx14::make_unique<Assemblers::MeltAdvectionSystem<dim> > ());
 
-
+    if (this->get_parameters().fixed_heat_flux_boundary_indicators.size() != 0)
+      {
+        assemblers.advection_system_on_boundary_face.push_back(
+          std_cxx14::make_unique<aspect::Assemblers::AdvectionSystemBoundaryHeatFlux<dim> >());
+        assemblers.advection_system_assembler_on_face_properties[0].need_face_material_model_data = true;
+        assemblers.advection_system_assembler_on_face_properties[0].need_face_finite_element_evaluation = true;
+      }
   }
 
 

@@ -37,6 +37,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <type_traits>
+
 #include <boost/lexical_cast.hpp>
 
 namespace aspect
@@ -275,6 +278,7 @@ namespace aspect
     void Visualization<dim>::mesh_changed_signal()
     {
       cell_output_history.mesh_changed = true;
+      face_output_history.mesh_changed = true;
     }
 
 
@@ -291,6 +295,8 @@ namespace aspect
                      std::is_same<DataOutType,DataOutFaces<dim>>::value,
                      "The only allowed template types of this function are "
                      "DataOut and DataOutFaces.");
+      const bool is_cell_data_output = std::is_same<DataOutType,DataOut<dim>>::value;
+
       const double time_in_years_or_seconds = (this->convert_output_to_years() ?
                                                this->get_time() / year_in_seconds :
                                                this->get_time());
@@ -307,29 +313,26 @@ namespace aspect
           // in case we output all nonlinear iterations, we only want one
           // entry per time step, so replace the last line with the current iteration
           if (this->get_nonlinear_iteration() == 0)
-            output_history.times_and_pvtu_names.push_back(std::make_pair
-                                                          (time_in_years_or_seconds, "solution/"+pvtu_master_filename));
+            output_history.times_and_pvtu_names.emplace_back(time_in_years_or_seconds, "solution/"+pvtu_master_filename);
           else
             output_history.times_and_pvtu_names.back() = (std::make_pair
                                                           (time_in_years_or_seconds, "solution/"+pvtu_master_filename));
         }
       else
-        output_history.times_and_pvtu_names.push_back(std::make_pair
-                                                      (time_in_years_or_seconds, "solution/"+pvtu_master_filename));
+        output_history.times_and_pvtu_names.emplace_back(time_in_years_or_seconds, "solution/"+pvtu_master_filename);
 
-      const std::string
-      pvd_master_filename = (this->get_output_directory() + "solution.pvd");
+      const std::string pvd_master_filename = (this->get_output_directory() +
+                                               (is_cell_data_output ? "solution.pvd" : "solution_surface.pvd"));
       std::ofstream pvd_master (pvd_master_filename.c_str());
 
       DataOutBase::write_pvd_record (pvd_master, output_history.times_and_pvtu_names);
 
       // finally, do the same for Visit via the .visit file for this
       // time step, as well as for all time steps together
-      const std::string
-      visit_master_filename = (this->get_output_directory()
-                               + "solution/"
-                               + solution_file_prefix
-                               + ".visit");
+      const std::string visit_master_filename = (this->get_output_directory()
+                                                 + "solution/"
+                                                 + solution_file_prefix
+                                                 + ".visit");
       std::ofstream visit_master (visit_master_filename.c_str());
 
       DataOutBase::write_visit_record (visit_master, filenames);
@@ -338,11 +341,10 @@ namespace aspect
         // the global .visit file needs the relative path because it sits a
         // directory above
         std::vector<std::string> filenames_with_path;
-        for (std::vector<std::string>::const_iterator it = filenames.begin();
-             it != filenames.end();
-             ++it)
+        filenames_with_path.reserve(filenames.size());
+        for (const auto &filename : filenames)
           {
-            filenames_with_path.push_back("solution/" + (*it));
+            filenames_with_path.emplace_back("solution/" + filename);
           }
 
         if (this->get_parameters().run_postprocessors_on_nonlinear_iterations)
@@ -359,7 +361,7 @@ namespace aspect
       }
 
       std::ofstream global_visit_master ((this->get_output_directory() +
-                                          "solution.visit").c_str());
+                                          (is_cell_data_output ? "solution.visit" : "solution_surface.visit")).c_str());
 
       std::vector<std::pair<double, std::vector<std::string> > > times_and_output_file_names;
       for (unsigned int timestep=0; timestep<output_history.times_and_pvtu_names.size(); ++timestep)
@@ -375,9 +377,8 @@ namespace aspect
     Visualization<dim>::update ()
     {
       //Call the .update() method for each visualization postprocessor.
-      for (typename std::list<std::unique_ptr<VisualizationPostprocessors::Interface<dim> > >::const_iterator
-           p = postprocessors.begin(); p!=postprocessors.end(); ++p)
-        (*p)->update();
+      for (const auto &p : postprocessors)
+        p->update();
     }
 
 
@@ -392,11 +393,15 @@ namespace aspect
                      std::is_same<DataOutType,DataOutFaces<dim>>::value,
                      "The only allowed template types of this function are "
                      "DataOut and DataOutFaces.");
+      const bool is_cell_data_output = std::is_same<DataOutType,DataOut<dim>>::value;
+
       const double time_in_years_or_seconds = (this->convert_output_to_years() ?
                                                this->get_time() / year_in_seconds :
                                                this->get_time());
 
-      std::string solution_file_prefix = "solution-" + Utilities::int_to_string (output_file_number, 5);
+      std::string solution_file_prefix =
+        (is_cell_data_output ? "solution-" : "solution_surface-")
+        + Utilities::int_to_string (output_file_number, 5);
       if (this->get_parameters().run_postprocessors_on_nonlinear_iterations)
         solution_file_prefix.append("." + Utilities::int_to_string (this->get_nonlinear_iteration(), 4));
 
@@ -410,8 +415,9 @@ namespace aspect
           DataOutBase::DataOutFilter data_filter(
             DataOutBase::DataOutFilterFlags(filter_output, true));
           // If the mesh changed since the last output, make a new mesh file
-          const std::string mesh_file_prefix = "mesh-"
-                                               + Utilities::int_to_string(output_file_number, 5);
+          const std::string mesh_file_prefix =
+            (is_cell_data_output ? "mesh-" : "mesh_surface-")
+            + Utilities::int_to_string(output_file_number, 5);
           if (output_history.mesh_changed)
             output_history.last_mesh_file_name = "solution/" + mesh_file_prefix + ".h5";
 
@@ -578,6 +584,22 @@ namespace aspect
       data_out.add_data_vector (this->get_solution(),
                                 base_variables);
 
+      // Also create an object for outputting information that lives on
+      // the faces of the mesh. If there are postprocessors derived from
+      // the VisualizationPostprocessors::SurfaceOnlyVisualization class, then
+      // we will use this object for viz purposes.
+      DataOutFaces<dim> data_out_faces;
+      data_out_faces.attach_dof_handler (this->get_dof_handler());
+      const bool have_face_viz_postprocessors
+        = (std::find_if (postprocessors.begin(),
+                         postprocessors.end(),
+                         [](const std::unique_ptr<VisualizationPostprocessors::Interface<dim> > &p)
+      {
+        return (dynamic_cast<const VisualizationPostprocessors::SurfaceOnlyVisualization<dim>*>
+                (p.get()) != nullptr);
+      })
+      != postprocessors.end());
+
       // If there is a deforming mesh, also attach the mesh velocity object
       if ( this->get_parameters().mesh_deformation_enabled && output_mesh_velocity)
         {
@@ -592,25 +614,34 @@ namespace aspect
       // pointers to data vectors created by cell data visualization
       // postprocessors that will later be deleted
       std::list<std::unique_ptr<Vector<float> > > cell_data_vectors;
-      for (typename std::list<std::unique_ptr<VisualizationPostprocessors::Interface<dim> > >::const_iterator
-           p = postprocessors.begin(); p!=postprocessors.end(); ++p)
+      for (const auto &p : postprocessors)
         {
           try
             {
-              // there are two ways of writing visualization postprocessors:
+              // There are two ways of writing visualization postprocessors:
               // - deriving from DataPostprocessor
               // - deriving from DataVectorCreator
-              // treat them in turn
+              // treat them in turn. In both cases, the information can
+              // be output on all cells, or via the faces on the surface
+              // only (if the class in question is derived from
+              // SurfaceOnlyVisualization), so we will have to switch between
+              // the two ways when we send things to the data_out or
+              // data_out_faces objects.
               if (const DataPostprocessor<dim> *viz_postprocessor
-                  = dynamic_cast<const DataPostprocessor<dim>*>(& **p))
+                  = dynamic_cast<const DataPostprocessor<dim>*>(& *p))
                 {
-                  data_out.add_data_vector (this->get_solution(),
-                                            *viz_postprocessor);
+                  if (dynamic_cast<const VisualizationPostprocessors::SurfaceOnlyVisualization<dim>*>
+                      (& *p) == nullptr)
+                    data_out.add_data_vector (this->get_solution(),
+                                              *viz_postprocessor);
+                  else
+                    data_out_faces.add_data_vector (this->get_solution(),
+                                                    *viz_postprocessor);
                 }
               else if (const VisualizationPostprocessors::CellDataVectorCreator<dim> *
                        cell_data_creator
                        = dynamic_cast<const VisualizationPostprocessors::CellDataVectorCreator<dim>*>
-                         (& **p))
+                         (& *p))
                 {
                   // get the data produced here
                   const std::pair<std::string, Vector<float> *>
@@ -625,9 +656,15 @@ namespace aspect
                   cell_data_vectors.push_back (std::unique_ptr<Vector<float> >
                                                (cell_data.second));
 
-                  data_out.add_data_vector (*cell_data.second,
-                                            cell_data.first,
-                                            DataOut<dim>::type_cell_data);
+                  if (dynamic_cast<const VisualizationPostprocessors::SurfaceOnlyVisualization<dim>*>
+                      (& *p) == nullptr)
+                    data_out.add_data_vector (*cell_data.second,
+                                              cell_data.first,
+                                              DataOut<dim>::type_cell_data);
+                  else
+                    data_out_faces.add_data_vector (*cell_data.second,
+                                                    cell_data.first,
+                                                    DataOutFaces<dim>::type_cell_data);
                 }
               else
                 // A viz postprocessor not derived from either DataPostprocessor
@@ -654,7 +691,7 @@ namespace aspect
               std::cerr << "An exception happened on MPI process <"
                         << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
                         << "> while running the visualization postprocessor <"
-                        << typeid(**p).name()
+                        << typeid(*p).name()
                         << ">: " << std::endl
                         << exc.what() << std::endl
                         << "Aborting!" << std::endl
@@ -672,7 +709,7 @@ namespace aspect
               std::cerr << "An exception happened on MPI process <"
                         << Utilities::MPI::this_mpi_process(MPI_COMM_WORLD)
                         << "> while running the visualization postprocessor <"
-                        << typeid(**p).name()
+                        << typeid(*p).name()
                         << ">: " << std::endl;
               std::cerr << "Unknown exception!" << std::endl
                         << "Aborting!" << std::endl
@@ -713,7 +750,23 @@ namespace aspect
                               + solution_file_prefix);
       }
 
-      // up the next time we need output
+      // Then do the same again for the face data case. We won't print the
+      // output file name to screen (too much clutter on the screen already)
+      // but still put it into the statistics file
+      if (have_face_viz_postprocessors)
+        {
+          data_out_faces.build_patches (this->get_mapping(),
+                                        subdivisions);
+
+          const std::string face_solution_file_prefix
+            = write_data_out_data(data_out_faces, face_output_history);
+          statistics.add_value ("Surface visualization file name",
+                                this->get_output_directory()
+                                + "solution_surface/"
+                                + face_solution_file_prefix);
+        }
+
+      // Increment the next time we need output:
       set_last_output_time (this->get_time());
       last_output_timestep = this->get_timestep_number();
 
@@ -1052,10 +1105,10 @@ namespace aspect
             {
               AssertThrow(output_format == "vtu",
                           ExcMessage("The option 'Postprocess/Visualization/Write higher order output' requires the "
-                                     "data output format to be set to 'vtu'"));
+                                     "data output format to be set to 'vtu'."));
               AssertThrow(interpolate_output == true,
                           ExcMessage("The input parameter 'Postprocess/Visualization/Write higher order output' "
-                                     "requires the input parameter 'Interpolate output' to be set to 'true'"));
+                                     "requires the input parameter 'Interpolate output' to be set to 'true'."));
             }
 
           output_mesh_velocity = prm.get_bool("Output mesh velocity");
@@ -1166,6 +1219,7 @@ namespace aspect
 
       // Finally also set up a listener to check when the mesh changes
       cell_output_history.mesh_changed = true;
+      face_output_history.mesh_changed = true;
       this->get_triangulation().signals.post_refinement.connect(
         [&]()
       {
@@ -1183,6 +1237,7 @@ namespace aspect
       & last_output_timestep
       & output_file_number
       & cell_output_history
+      & face_output_history
       ;
     }
 
@@ -1263,11 +1318,9 @@ namespace aspect
       // loop over all of the viz postprocessors and collect what
       // they want. don't worry about duplicates, the postprocessor
       // manager will filter them out
-      for (typename std::list<std::unique_ptr<VisualizationPostprocessors::Interface<dim> > >::const_iterator
-           p = postprocessors.begin();
-           p != postprocessors.end(); ++p)
+      for (const auto &p : postprocessors)
         {
-          const std::list<std::string> this_requirements = (*p)->required_other_postprocessors();
+          const std::list<std::string> this_requirements = p->required_other_postprocessors();
           requirements.insert (requirements.end(),
                                this_requirements.begin(), this_requirements.end());
         }

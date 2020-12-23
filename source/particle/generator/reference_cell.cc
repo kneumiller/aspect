@@ -49,13 +49,11 @@ namespace aspect
         for (const auto &cell : this->get_triangulation().active_cell_iterators())
           if (cell->is_locally_owned())
             {
-              for (typename std::vector<Point<dim> >::const_iterator itr_particles_in_unit_cell = particles_in_unit_cell.begin();
-                   itr_particles_in_unit_cell != particles_in_unit_cell.end();
-                   itr_particles_in_unit_cell++)
+              for (const auto &itr_particles_in_unit_cell : particles_in_unit_cell)
                 {
                   const Point<dim> position_real = this->get_mapping().transform_unit_to_real_cell(cell,
-                                                   *itr_particles_in_unit_cell);
-                  const Particle<dim> particle(position_real, *itr_particles_in_unit_cell, particle_index);
+                                                   itr_particles_in_unit_cell);
+                  const Particle<dim> particle(position_real, itr_particles_in_unit_cell, particle_index);
                   const Particles::internal::LevelInd cell_index(cell->level(), cell->index());
                   particles.insert(std::make_pair(cell_index, particle));
                   ++particle_index;
@@ -150,8 +148,8 @@ namespace aspect
                 std::vector<double> n_particles_tmp = Utilities::possibly_extend_from_1_to_N (Utilities::string_to_double(Utilities::split_string_list(prm.get("Number of particles per cell per direction"))),
                                                                                               dim,
                                                                                               "Number of particles per cell per direction");
-                for (std::vector<double>::const_iterator itr = n_particles_tmp.begin(); itr != n_particles_tmp.end(); itr++)
-                  number_of_particles.push_back(static_cast<unsigned int>(*itr));
+                for (double itr : n_particles_tmp)
+                  number_of_particles.push_back(static_cast<unsigned int>(itr));
               }
               prm.leave_subsection();
             }

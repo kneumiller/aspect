@@ -120,7 +120,7 @@ DEAL_II_INITIALIZE_CACHED_VARIABLES()
 PROJECT(${TARGET} CXX)
 
 SET(ASPECT_WITH_WORLD_BUILDER ON CACHE BOOL "Whether to enable compiling aspect with the Geodynamic World Builder.")
-message(STATUS "ASPECT_WITH_WORLD_BUILDER = '${ASPECT_WITH_WORLD_BUILDER}'")
+MESSAGE(STATUS "ASPECT_WITH_WORLD_BUILDER = '${ASPECT_WITH_WORLD_BUILDER}'")
 if(ASPECT_WITH_WORLD_BUILDER)
   # Check whether we can find the WorldBuilder.
   SET(WORLD_BUILDER_SOURCE_DIR "" CACHE PATH "Provide an external World Builder directory to be compiled with ASPECT. \
@@ -144,18 +144,36 @@ if(ASPECT_WITH_WORLD_BUILDER)
   CONFIGURE_FILE("${WORLD_BUILDER_SOURCE_DIR}/source/config.cc.in" "${CMAKE_BINARY_DIR}/world_builder_config.cc" @ONLY)
   LIST(INSERT TARGET_SRC 0 "${CMAKE_BINARY_DIR}/world_builder_config.cc")
 
+  # Move some file to the end for unity builds to make sure other file come
+  # "before". Note: The current design keeps all ASPECT files (including
+  # ASPECT_UNITY_LAST files) before all GWB files. Mixing them will causes
+  # many issues with non-unique namespace names like Utilities.
+  SET(UNITY_WB_LAST_FILES
+  "${WORLD_BUILDER_SOURCE_DIR}/source/parameters.cc")
+
+  FOREACH(_source_file ${UNITY_WB_LAST_FILES})
+    LIST(FIND TARGET_SRC ${_source_file} _index)
+    IF(_index EQUAL -1)
+      MESSAGE(FATAL_ERROR "could not find ${_source_file}.")
+    ENDIF()
+
+    LIST(REMOVE_ITEM TARGET_SRC ${_source_file})
+    LIST(APPEND TARGET_SRC ${_source_file})
+  ENDFOREACH()
+
   FOREACH(_source_file ${wb_files})
     # exclude the world builder files from including precompiled headers, they
     # do not include ASPECT's dependencies at all.
     SET_PROPERTY(SOURCE ${_source_file} PROPERTY COTIRE_EXCLUDED TRUE )
     SET_PROPERTY(SOURCE ${_source_file} PROPERTY SKIP_PRECOMPILE_HEADERS TRUE )
-    # exclude the world builder from unity builds (avoids compilation errors):
+    # Temporarily disable world builder unity builds:
     SET_PROPERTY(SOURCE ${_source_file} PROPERTY SKIP_UNITY_BUILD_INCLUSION TRUE )
   ENDFOREACH()
 
   SET_PROPERTY(SOURCE "${CMAKE_BINARY_DIR}/world_builder_config.cc" PROPERTY COTIRE_EXCLUDED TRUE )
   SET_PROPERTY(SOURCE "${CMAKE_BINARY_DIR}/world_builder_config.cc" PROPERTY SKIP_PRECOMPILE_HEADERS TRUE )
-endif()
+ENDIF()
+
 
 
 # load in version info and export it

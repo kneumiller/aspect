@@ -199,11 +199,17 @@ namespace aspect
     assembler.initialize_simulator(sim);
     parse_parameters (prm);
 
-    this->get_signals().edit_finite_element_variables.connect(std::bind(&aspect::VolumeOfFluidHandler<dim>::edit_finite_element_variables,
-                                                                        std::ref(*this),
-                                                                        std::placeholders::_1));
-    this->get_signals().post_set_initial_state.connect(std::bind(&aspect::VolumeOfFluidHandler<dim>::set_initial_volume_fractions,
-                                                                 std::ref(*this)));
+    this->get_signals().edit_finite_element_variables.connect(
+      [&](std::vector<VariableDeclaration<dim> > &vars)
+    {
+      this->edit_finite_element_variables(vars);
+    });
+
+    this->get_signals().post_set_initial_state.connect(
+      [&](const SimulatorAccess<dim> &)
+    {
+      this->set_initial_volume_fractions();
+    });
   }
 
 
@@ -269,7 +275,7 @@ namespace aspect
 
     prm.enter_subsection("Initial composition model");
     {
-      prm.declare_entry("Volume of fluid intialization type", "",
+      prm.declare_entry("Volume of fluid initialization type", "",
                         Patterns::Map (Patterns::Anything(),
                                        Patterns::Selection("composition|level set")),
                         "A comma separated list denoting the method to be used to "
@@ -332,27 +338,26 @@ namespace aspect
 
     prm.enter_subsection("Initial composition model");
     {
-      const std::vector<std::string> x_initialization_type = Utilities::split_string_list(prm.get("Volume of fluid intialization type"));
+      const std::vector<std::string> x_initialization_type = Utilities::split_string_list(prm.get("Volume of fluid initialization type"));
 
       initialization_data_type = std::vector<VolumeOfFluid::VolumeOfFluidInputType::Kind> (n_volume_of_fluid_fields,
                                  VolumeOfFluid::VolumeOfFluidInputType::composition);
 
-      for (std::vector<std::string>::const_iterator p = x_initialization_type.begin();
-           p != x_initialization_type.end(); ++p)
+      for (const auto &p : x_initialization_type)
         {
           // each entry has the format (white space is optional):
           // <name> : <value (might have spaces)>
           //
           // first tease apart the two halves
-          const std::vector<std::string> split_parts = Utilities::split_string_list (*p, ':');
+          const std::vector<std::string> split_parts = Utilities::split_string_list (p, ':');
           AssertThrow (split_parts.size() == 2,
                        ExcMessage ("The format for "
-                                   "<Initial composition model/Volume of Fluid intialization method> "
+                                   "<Initial composition model/Volume of fluid initialization method> "
                                    "volume of fluid initialization met "
                                    "requires that each entry " "has the form "
                                    "`<name of field> : <method>', but this "
                                    "does not match the number of colons in the "
-                                   "entry <" + *p + ">."));
+                                   "entry <" + p + ">."));
 
           // get the name of the compositional field
           const std::string key = split_parts[0];
@@ -365,7 +370,7 @@ namespace aspect
                        != names_of_compositional_fields.end(),
                        ExcMessage ("Name of field <" + key +
                                    "> appears in the parameter "
-                                   "<Initial composition model/Volume of Fluid intialization method>, but "
+                                   "<Initial composition model/Volume of fluid initialization method>, but "
                                    "there is no field with this name."));
 
           const unsigned int compositional_field_index = std::distance(names_of_compositional_fields.begin(),
@@ -374,14 +379,14 @@ namespace aspect
           AssertThrow (compositional_field_methods[compositional_field_index]
                        == Parameters<dim>::AdvectionFieldMethod::volume_of_fluid,
                        ExcMessage ("The field <" + key + "> appears in the parameter "
-                                   "<Initial composition model/Volume of Fluid intialization method>, "
+                                   "<Initial composition model/Volume of fluid initialization method>, "
                                    "but is not advected by a particle method."));
 
           AssertThrow (std::count(names_of_compositional_fields.begin(),
                                   names_of_compositional_fields.end(), key) == 1,
                        ExcMessage ("Name of field <" + key + "> appears more "
                                    "than once in the parameter "
-                                   "<Initial composition model/Volume of Fluid intialization type>."));
+                                   "<Initial composition model/Volume of fluid initialization type>."));
 
           // Get specification for how to treat initializing data
           const std::string value = split_parts[1];
@@ -413,7 +418,7 @@ namespace aspect
                 ExcMessage("Volume of Fluid Interface Tracking requires CFL < 1."));
 
     AssertThrow(!this->get_material_model().is_compressible(),
-                ExcMessage("Volume of Fluid Interface Tracking currently assumes incompressiblity."));
+                ExcMessage("Volume of Fluid Interface Tracking currently assumes incompressibility."));
 
     AssertThrow(dynamic_cast<const MappingCartesian<dim> *>(&(this->get_mapping())),
                 ExcMessage("Volume of Fluid Interface Tracking currently requires Cartesian Mappings"));
@@ -555,9 +560,7 @@ namespace aspect
     sim.system_matrix.block(block_idx, block_idx) = 0;
     sim.system_rhs = 0;
 
-    typedef
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-    CellFilter;
+    using CellFilter = FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>;
 
     const FiniteElement<dim> &volume_of_fluid_fe = (*field.volume_fraction.fe);
 
