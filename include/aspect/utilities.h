@@ -401,13 +401,6 @@ namespace aspect
      */
     bool filename_is_url(const std::string &filename);
 
-#ifdef ASPECT_WITH_LIBDAP
-    /**
-     *
-     */
-    void libdap_url_loader(const std::string &filename);
-#endif // ASPECT_WITH_LIBDAP
-
     /**
      * Reads the content of the ascii file @p filename on process 0 and
      * distributes the content by MPI_Bcast to all processes. The function
@@ -626,6 +619,13 @@ namespace aspect
                     const std::vector<std::vector<double>> &coordinate_values,
                     const std::vector<Table<dim,double> > &raw_data
                    );
+
+#ifdef ASPECT_WITH_LIBDAP
+        /**
+         *
+         */
+        void libdap_url_loader(const std::string &filename);
+#endif // ASPECT_WITH_LIBDAP
 
         /**
          * Loads a data text file. Throws an exception if the file does not
