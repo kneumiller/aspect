@@ -956,8 +956,8 @@ namespace aspect
     }
 
 #ifdef ASPECT_WITH_LIBDAP
-    void
-    libdap_url_loader(const std::string &filename)
+    template <int dim>
+    void AsciiDataLookup<dim>::libdap_url_loader(const std::string &filename)
     {
         libdap::Connect *url = new libdap::Connect(filename);
         libdap::BaseTypeFactory factory;
@@ -967,7 +967,7 @@ namespace aspect
         url->request_data(dds, "");
         url->request_das(das);
 
-        //TODO: for future use in reinit
+        //for future use in reinit
         std::vector<std::string> column_names;
 
         libdap::Array *gridArray;
@@ -1006,6 +1006,7 @@ namespace aspect
                     }
                 }
 
+                //This may not be needed
                 auto lonData = vector<libdap::dods_float32>(lonArray->length());
                 lonArray->value(&lonData[0]);
                 auto latData = vector<libdap::dods_float32>(latArray->length());
@@ -1020,7 +1021,7 @@ namespace aspect
         //TODO: Convert libdap::float32 values to double
         //double* convert_data = extract_double_array(gridArray);
 
-        //TODO: Call reinit
+        /*** Set up data for reinit ***/
           AsciiDataLookup<2> lookup(1.0);
           if (gridArray->dimensions() != 2)
               AssertThrow(false,
@@ -1043,7 +1044,7 @@ namespace aspect
           for (size_t i = 0; i < x_size; i++) {
               auto offset = i*y_size;
               for (size_t j = 0; j < y_size; j++) {
-                //TODO: change at to []
+                //TODO: change at to [], use .at for testing
                 grid_data[0](i, j) = double_grid.at(offset+j);
                 //grid_data[i](j) = double_grid[offset+j];
               }
